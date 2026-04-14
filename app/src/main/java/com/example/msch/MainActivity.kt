@@ -54,9 +54,37 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
 
     var selectedRecord by remember { mutableStateOf<PeriodRecord?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showAddDatePicker by remember { mutableStateOf(false) }
 
     val nextDateMillis = remember(records) {
         CyclePredictor.predictNextCycle(records)
+    }
+
+    if (showAddDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = System.currentTimeMillis()
+        )
+
+        DatePickerDialog(
+            onDismissRequest = { showAddDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { selectedMillis ->
+                        scope.launch(Dispatchers.IO) {
+                            dao.insert(PeriodRecord(startDate = selectedMillis))
+                        }
+                    }
+                    showAddDatePicker = false
+                }) { Text(stringResource(R.string.ok_button)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddDatePicker = false }) {
+                    Text(stringResource(R.string.cancel_button))
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
     }
 
     Column(
@@ -85,12 +113,7 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
             ),
-            onClick = {
-                scope.launch(Dispatchers.IO) {
-                    val newRecord = PeriodRecord(startDate = System.currentTimeMillis())
-                    dao.insert(newRecord)
-                }
-            },
+            onClick = { showAddDatePicker = true },
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             Text(stringResource(R.string.log_period_button))
