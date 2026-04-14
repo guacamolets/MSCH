@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MSCH</string>
+    <string name="next_period_label">Next cycle starts:</string>
+    <string name="log_period_button">Track period</string>
+    <string name="edit_button">Edit</string>
+    <string name="delete_button">Delete</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="ok_button">OK</string>
+    <string name="history_title">History</string>
+    <string name="manage_record_title">Manage record</string>
+    <string name="selected_date">Date: %1$s</string>
+</resources>

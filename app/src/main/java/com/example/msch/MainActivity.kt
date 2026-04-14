@@ -12,6 +12,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.room.Room
 import com.example.msch.ui.theme.MSCHTheme
@@ -69,7 +71,7 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Next cycle starts")
+                Text(stringResource(R.string.next_period_label))
                 val sdf = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault())
                 Text(
                     text = sdf.format(Date(nextDateMillis)),
@@ -91,13 +93,13 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
             },
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
-            Text("Track period")
+            Text(stringResource(R.string.log_period_button))
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "History:",
+            text = stringResource(R.string.history_title),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.align(Alignment.Start)
         )
@@ -127,10 +129,10 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
                         }
                         showDatePicker = false
                         selectedRecord = null
-                    }) { Text("ОК") }
+                    }) { Text(stringResource(R.string.ok_button)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                    TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.cancel_button)) }
                 }
             ) {
                 DatePicker(state = datePickerState)
@@ -139,18 +141,28 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
 
         AlertDialog(
             onDismissRequest = { selectedRecord = null },
-            text = { Text("Date: ${SimpleDateFormat("dd.MM.yyyy").format(Date(record.startDate))}") },
+            title = { Text(stringResource(R.string.manage_record_title)) },
+            text = {
+                val formattedDate = android.text.format.DateFormat
+                    .getDateFormat(LocalContext.current)
+                    .format(Date(record.startDate))
+
+                Text(text = stringResource(R.string.selected_date, formattedDate))
+            },
             confirmButton = {
                 TextButton(onClick = {
                     scope.launch(Dispatchers.IO) { dao.delete(record) }
                     selectedRecord = null
                 }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(
+                        text = stringResource(R.string.delete_button),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = true }) {
-                    Text("Edit")
+                    Text(stringResource(R.string.edit_button))
                 }
             }
         )

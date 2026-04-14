@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">MSCH</string>
+    <string name="next_period_label">Следующий цикл:</string>
+    <string name="log_period_button">Отметить месячные</string>
+    <string name="edit_button">Редактировать</string>
+    <string name="delete_button">Удалить</string>
+    <string name="cancel_button">Отменить</string>
+    <string name="ok_button">ОК</string>
+    <string name="history_title">История</string>
+    <string name="manage_record_title">Управление записью</string>
+    <string name="selected_date">Дата: %1$s</string>
 </resources>
