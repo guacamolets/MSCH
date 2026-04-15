@@ -9,4 +9,5 @@
     <string name="history_title">История</string>
     <string name="manage_record_title">Управление записью</string>
     <string name="selected_date">Дата: %1$s</string>
+    <string name="days_suffix">дн.</string>
 </resources>

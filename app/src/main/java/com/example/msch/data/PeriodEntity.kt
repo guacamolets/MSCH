@@ -1,4 +1,4 @@
-package com.example.msch
+package com.example.msch.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,4 +1,4 @@
-package com.example.msch
+package com.example.msch.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
