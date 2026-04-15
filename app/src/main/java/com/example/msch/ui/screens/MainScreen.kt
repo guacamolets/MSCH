@@ -45,10 +45,13 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
-    val records by dao.getAllRecords().collectAsState(initial = emptyList())
-    val scope = rememberCoroutineScope()
-
+fun MainScreen(
+    records: List<PeriodRecord>,
+    onInsert: (Long) -> Unit,
+    onUpdate: (PeriodRecord, Long) -> Unit,
+    onDelete: (PeriodRecord) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var selectedRecord by remember { mutableStateOf<PeriodRecord?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showAddDatePicker by remember { mutableStateOf(false) }
@@ -70,12 +73,12 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { selectedMillis ->
-                        scope.launch(Dispatchers.IO) {
-                            dao.insert(PeriodRecord(startDate = selectedMillis))
-                        }
+                        onInsert(selectedMillis)
                     }
                     showAddDatePicker = false
-                }) { Text(stringResource(R.string.ok_button)) }
+                }) {
+                    Text(stringResource(R.string.ok_button))
+                }
             },
             dismissButton = {
                 TextButton(onClick = { showAddDatePicker = false }) {
@@ -163,9 +166,7 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
                 confirmButton = {
                     TextButton(onClick = {
                         val newDate = datePickerState.selectedDateMillis ?: record.startDate
-                        scope.launch(Dispatchers.IO) {
-                            dao.update(record.copy(startDate = newDate))
-                        }
+                        onUpdate(record, newDate)
                         showDatePicker = false
                         selectedRecord = null
                     }) { Text(stringResource(R.string.ok_button)) }
@@ -190,7 +191,7 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
             },
             confirmButton = {
                 TextButton(onClick = {
-                    scope.launch(Dispatchers.IO) { dao.delete(record) }
+                    onDelete(record)
                     selectedRecord = null
                 }) {
                     Text(

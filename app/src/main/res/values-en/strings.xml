@@ -11,4 +11,8 @@
     <string name="selected_date">Date: %1$s</string>
     <string name="days_suffix">days</string>
     <string name="average_cycle_label">Average cycle</string>
+    <string name="json_import_title">Import from JSON</string>
+    <string name="json_export_title">Export to JSON</string>
+    <string name="csv_export_title">Export to CSV</string>
+    <string name="menu_title">Menu</string>
 </resources>

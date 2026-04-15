@@ -11,4 +11,8 @@
     <string name="selected_date">Дата: %1$s</string>
     <string name="days_suffix">дн.</string>
     <string name="average_cycle_label">Средний цикл</string>
+    <string name="json_import_title">Импорт из JSON</string>
+    <string name="json_export_title">Экспорт в JSON</string>
+    <string name="csv_export_title">Экспорт в CSV</string>
+    <string name="menu_title">Меню</string>
 </resources>
