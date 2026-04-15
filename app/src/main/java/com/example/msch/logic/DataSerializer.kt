@@ -1,6 +1,6 @@
 package com.example.msch.logic
 
-import com.example.msch.data.PeriodRecord
+import com.example.msch.entities.PeriodRecord
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat

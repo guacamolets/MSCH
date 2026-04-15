@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.msch.R
-import com.example.msch.data.PeriodRecord
+import com.example.msch.entities.PeriodRecord
 import java.util.Date
 
 @Composable

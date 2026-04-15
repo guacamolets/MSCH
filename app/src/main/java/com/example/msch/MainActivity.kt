@@ -23,7 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.msch.data.AppDatabase
-import com.example.msch.data.PeriodRecord
+import com.example.msch.entities.PeriodRecord
 import com.example.msch.logic.DataManager
 import com.example.msch.logic.SettingsManager
 import com.example.msch.ui.components.DataMenu
@@ -125,11 +125,20 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.History.route) {
                             HistoryScreen(
                                 records = records,
+                                onInsert = { newMillis ->
+                                    scope.launch(Dispatchers.IO) {
+                                        dao.insert(PeriodRecord(startDate = newMillis))
+                                    }
+                                },
                                 onUpdate = { record, newMillis ->
-                                    scope.launch(Dispatchers.IO) { dao.update(record.copy(startDate = newMillis)) }
+                                    scope.launch(Dispatchers.IO) {
+                                        dao.update(record.copy(startDate = newMillis))
+                                    }
                                 },
                                 onDelete = { record ->
-                                    scope.launch(Dispatchers.IO) { dao.delete(record) }
+                                    scope.launch(Dispatchers.IO) {
+                                        dao.delete(record)
+                                    }
                                 }
                             )
                         }

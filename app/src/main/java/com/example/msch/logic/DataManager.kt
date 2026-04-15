@@ -3,10 +3,7 @@ package com.example.msch.logic
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
-import com.example.msch.data.PeriodRecord
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.msch.entities.PeriodRecord
 import java.io.File
 
 class DataManager(private val context: Context) {

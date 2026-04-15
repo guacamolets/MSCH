@@ -11,10 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.msch.R
-import com.example.msch.data.PeriodRecord
+import com.example.msch.entities.PeriodRecord
 import com.example.msch.logic.CyclePredictor
 import com.example.msch.logic.SettingsManager
+import com.example.msch.ui.components.HorizontalCalendar
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,7 +28,7 @@ fun MainScreen(
     onInsert: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showAddDatePicker by remember { mutableStateOf(false) }
+    var selectedDate by remember { mutableStateOf(System.currentTimeMillis()) }
 
     val nextDateMillis = remember(records, settingsManager.defaultCycleLength) {
         CyclePredictor.predictNextCycle(records, settingsManager.defaultCycleLength)
@@ -41,41 +43,27 @@ fun MainScreen(
         CyclePredictor.getDaysUntilNext(nextDateMillis)
     }
 
-    if (showAddDatePicker) {
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis())
-        DatePickerDialog(
-            onDismissRequest = { showAddDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { onInsert(it) }
-                    showAddDatePicker = false
-                }) {
-                    Text(stringResource(R.string.ok_button))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAddDatePicker = false }) {
-                    Text(stringResource(R.string.cancel_button))
-                }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
     Column(
         modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        HorizontalCalendar(
+            records = records,
+            nextDateMillis = nextDateMillis,
+            settingsManager = settingsManager,
+            selectedDateMillis = selectedDate,
+            onDateSelected = { selectedDate = it }
+        )
+
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = if (daysUntil > 0) {
-                stringResource(R.string.days_until_format, daysUntil)
-            } else if (daysUntil == 0) {
-                stringResource(R.string.period_soon)
-            } else {
-                stringResource(R.string.period_overdue)
+            text = when {
+                daysUntil > 0 -> stringResource(R.string.days_until_format, daysUntil)
+                daysUntil == 0 -> stringResource(R.string.period_soon)
+                else -> stringResource(R.string.period_overdue)
             },
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center
@@ -84,10 +72,8 @@ fun MainScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { showAddDatePicker = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
+            onClick = { onInsert(selectedDate) },
+            modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -96,7 +82,17 @@ fun MainScreen(
         ) {
             Icon(Icons.Default.Add, contentDescription = null)
             Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.log_period_button))
+
+            val isToday = android.text.format.DateUtils.isToday(selectedDate)
+            Text(
+                if (isToday) stringResource(R.string.log_period_button)
+                else {
+                    stringResource(
+                        R.string.log_period_on_date_format,
+                        SimpleDateFormat("d MMM", Locale.getDefault()).format(Date(selectedDate))
+                    )
+                }
+            )
         }
 
         Spacer(modifier = Modifier.height(48.dp))

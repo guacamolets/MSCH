@@ -1,4 +1,4 @@
-package com.example.msch.data
+package com.example.msch.entities
 
 import androidx.room.Entity
 import androidx.room.Index

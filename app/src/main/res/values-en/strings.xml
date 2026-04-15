@@ -29,4 +29,7 @@
     <string name="period_soon">Cycle starts soon</string>
     <string name="expected_on">Expected on</string>
     <string name="period_overdue">Late</string>
+    <string name="log_period_on_date_format">Log for %1$s</string>
+    <string name="history_empty">Your history will appear here</string>
+    <string name="add_record_button">Add record</string>
 </resources>
