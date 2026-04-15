@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MSCH</string>
+    <string name="app_name">МСЧ</string>
     <string name="next_period_label">Следующий цикл:</string>
     <string name="log_period_button">Отметить месячные</string>
     <string name="edit_button">Редактировать</string>
@@ -15,4 +15,9 @@
     <string name="json_export_title">Экспорт в JSON</string>
     <string name="csv_export_title">Экспорт в CSV</string>
     <string name="menu_title">Меню</string>
+    <string name="settings">Настройки</string>
+    <string name="back">Назад</string>
+    <string name="average_cycle_length">Длина цикла</string>
+    <string name="period_duration">Длина месячных</string>
+    <string name="notifications">Уведомления</string>
 </resources>

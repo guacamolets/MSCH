@@ -4,15 +4,15 @@ import com.example.msch.data.PeriodRecord
 import java.util.concurrent.TimeUnit
 
 object CyclePredictor {
-    const val DEFAULT_CYCLE_DAYS = 28L
+    fun predictNextCycle(records: List<PeriodRecord>, defaultCycleLength: Int): Long {
+        val cycleMillis = TimeUnit.DAYS.toMillis(defaultCycleLength.toLong())
 
-    fun predictNextCycle(records: List<PeriodRecord>): Long {
         if (records.isEmpty()) {
-            return System.currentTimeMillis() + AppConfig.MILLIS_IN_DAY * AppConfig.DEFAULT_CYCLE_LENGTH
+            return System.currentTimeMillis() + cycleMillis
         }
 
         if (records.size < 2) {
-            return records.first().startDate + AppConfig.MILLIS_IN_DAY * AppConfig.DEFAULT_CYCLE_LENGTH
+            return records.first().startDate + cycleMillis
         }
 
         val limitedRecords = records.take(AppConfig.MAX_RECORDS + 1)
@@ -22,11 +22,12 @@ object CyclePredictor {
             intervals.add(diff)
         }
 
-        return records.first().startDate + intervals.average().toLong()
+        val averageInterval = intervals.average().toLong()
+        return records.first().startDate + if (averageInterval > 0) averageInterval else cycleMillis
     }
 
-    fun calculateAverage(records: List<PeriodRecord>): Int {
-        if (records.size < 2) return AppConfig.DEFAULT_CYCLE_LENGTH
+    fun calculateAverage(records: List<PeriodRecord>, defaultCycleLength: Int): Int {
+        if (records.size < 2) return defaultCycleLength
 
         val limitedRecords = records.take(AppConfig.MAX_RECORDS + 1)
         val durations = mutableListOf<Long>()

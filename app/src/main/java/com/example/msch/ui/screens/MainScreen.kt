@@ -21,11 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,12 +31,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.msch.R
-import com.example.msch.data.PeriodDao
 import com.example.msch.data.PeriodRecord
 import com.example.msch.logic.CyclePredictor
+import com.example.msch.logic.SettingsManager
 import com.example.msch.ui.components.PeriodItem
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -47,6 +43,7 @@ import java.util.Locale
 @Composable
 fun MainScreen(
     records: List<PeriodRecord>,
+    settingsManager: SettingsManager,
     onInsert: (Long) -> Unit,
     onUpdate: (PeriodRecord, Long) -> Unit,
     onDelete: (PeriodRecord) -> Unit,
@@ -56,11 +53,11 @@ fun MainScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showAddDatePicker by remember { mutableStateOf(false) }
 
-    val nextDateMillis = remember(records) {
-        CyclePredictor.predictNextCycle(records)
+    val nextDateMillis = remember(records, settingsManager.defaultCycleLength) {
+        CyclePredictor.predictNextCycle(records, settingsManager.defaultCycleLength)
     }
-    val avgCycle = remember(records) {
-        CyclePredictor.calculateAverage(records)
+    val avgCycle = remember(records, settingsManager.defaultCycleLength) {
+        CyclePredictor.calculateAverage(records, settingsManager.defaultCycleLength)
     }
 
     if (showAddDatePicker) {
