@@ -56,6 +56,9 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
     val nextDateMillis = remember(records) {
         CyclePredictor.predictNextCycle(records)
     }
+    val avgCycle = remember(records) {
+        CyclePredictor.calculateAverage(records)
+    }
 
     if (showAddDatePicker) {
         val datePickerState = rememberDatePickerState(
@@ -101,6 +104,12 @@ fun MainScreen(dao: PeriodDao, modifier: Modifier = Modifier) {
                 Text(
                     text = sdf.format(Date(nextDateMillis)),
                     style = MaterialTheme.typography.headlineSmall
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "${stringResource(R.string.average_cycle_label)}: $avgCycle ${stringResource(R.string.days_suffix)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
         }

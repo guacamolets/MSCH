@@ -7,19 +7,34 @@ object CyclePredictor {
     const val DEFAULT_CYCLE_DAYS = 28L
 
     fun predictNextCycle(records: List<PeriodRecord>): Long {
-        if (records.size < 2) {
-            val lastDate = records.firstOrNull()?.startDate ?: System.currentTimeMillis()
-            return lastDate + TimeUnit.DAYS.toMillis(DEFAULT_CYCLE_DAYS)
+        if (records.isEmpty()) {
+            return System.currentTimeMillis() + AppConfig.MILLIS_IN_DAY * AppConfig.DEFAULT_CYCLE_LENGTH
         }
 
+        if (records.size < 2) {
+            return records.first().startDate + AppConfig.MILLIS_IN_DAY * AppConfig.DEFAULT_CYCLE_LENGTH
+        }
+
+        val limitedRecords = records.take(AppConfig.MAX_RECORDS + 1)
         val intervals = mutableListOf<Long>()
-        for (i in 0 until records.size - 1) {
-            val diff = records[i].startDate - records[i + 1].startDate
+        for (i in 0 until limitedRecords.size - 1) {
+            val diff = limitedRecords[i].startDate - limitedRecords[i + 1].startDate
             intervals.add(diff)
         }
 
-        val averageInterval = intervals.average().toLong()
+        return records.first().startDate + intervals.average().toLong()
+    }
 
-        return records.first().startDate + averageInterval
+    fun calculateAverage(records: List<PeriodRecord>): Int {
+        if (records.size < 2) return AppConfig.DEFAULT_CYCLE_LENGTH
+
+        val limitedRecords = records.take(AppConfig.MAX_RECORDS + 1)
+        val durations = mutableListOf<Long>()
+        for (i in 0 until limitedRecords.size - 1) {
+            val diff = limitedRecords[i].startDate - limitedRecords[i + 1].startDate
+            durations.add(diff / AppConfig.MILLIS_IN_DAY)
+        }
+
+        return durations.average().toInt()
     }
 }
