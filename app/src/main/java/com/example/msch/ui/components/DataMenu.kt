@@ -3,7 +3,6 @@ package com.example.msch.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
@@ -12,11 +11,10 @@ import com.example.msch.data.PeriodRecord
 import com.example.msch.logic.DataSerializer
 
 @Composable
-fun ExportMenu(
+fun DataMenu(
     records: List<PeriodRecord>,
     onShare: (String, String) -> Unit,
-    onImport: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onImport: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -50,17 +48,6 @@ fun ExportMenu(
                 onClick = {
                     onImport()
                     expanded = false
-                }
-            )
-            Divider()
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.settings)) },
-                leadingIcon = {
-                    Icon(Icons.Default.Settings, contentDescription = null)
-                },
-                onClick = {
-                    expanded = false
-                    onNavigateToSettings()
                 }
             )
         }

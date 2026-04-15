@@ -20,4 +20,7 @@
     <string name="average_cycle_length">Cycle length</string>
     <string name="period_duration">Period length</string>
     <string name="notifications">Notifications</string>
+    <string name="nav_main">Main</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
 </resources>

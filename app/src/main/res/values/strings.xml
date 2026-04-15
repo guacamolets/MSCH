@@ -20,4 +20,7 @@
     <string name="average_cycle_length">Длина цикла</string>
     <string name="period_duration">Длина месячных</string>
     <string name="notifications">Уведомления</string>
+    <string name="nav_main">Главная</string>
+    <string name="nav_history">История</string>
+    <string name="nav_settings">Настройки</string>
 </resources>
