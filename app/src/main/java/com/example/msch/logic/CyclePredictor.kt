@@ -38,4 +38,19 @@ object CyclePredictor {
 
         return durations.average().toInt()
     }
+    fun getCurrentDay(records: List<PeriodRecord>): Int? {
+        if (records.isEmpty()) return null
+
+        val lastStart = records.first().startDate
+        val diff = System.currentTimeMillis() - lastStart
+
+        return (diff / AppConfig.MILLIS_IN_DAY).toInt() + 1
+    }
+
+    fun getDaysUntilNext(nextDateMillis: Long): Int {
+        val diff = nextDateMillis - System.currentTimeMillis()
+
+        return (diff / AppConfig.MILLIS_IN_DAY).toInt()
+    }
+
 }
