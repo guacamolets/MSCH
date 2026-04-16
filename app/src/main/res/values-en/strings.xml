@@ -32,4 +32,14 @@
     <string name="log_period_on_date_format">Log for %1$s</string>
     <string name="history_empty">Your history will appear here</string>
     <string name="add_record_button">Add record</string>
+    <string name="remind_me_before">Remind me before</string>
+    <string name="days_short">days</string>
+    <string name="notification_title">Cycle starting soon</string>
+    <string name="notification_message">Your cycle is predicted to start in a few days</string>
+    <string name="notification_time">Notification time</string>
+    <string name="cycle_settings">Cycle settings</string>
+    <string name="remind_on_start_day">Notify on start day</string>
+    <string name="notification_today_title">Cycle Day!</string>
+    <string name="notification_today_message">Today is the predicted start day. Don\'t forget to log it.</string>
+    <string name="remind_before_start">Remind in advance</string>
 </resources>

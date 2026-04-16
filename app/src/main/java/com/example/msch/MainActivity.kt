@@ -34,6 +34,13 @@ import com.example.msch.ui.theme.MSCHTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 
 class MainActivity : ComponentActivity() {
     private val db by lazy {
@@ -43,6 +50,7 @@ class MainActivity : ComponentActivity() {
     }
     private val dao by lazy { db.periodDao() }
     private val dataManager by lazy { DataManager(this) }
+    private val settingsManager by lazy { SettingsManager(this) }
     private val scope = CoroutineScope(Dispatchers.Main)
 
     private val importLauncher = registerForActivityResult(
@@ -55,15 +63,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val viewModel: MainViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return MainViewModel(dao, settingsManager) as T
+            }
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannel()
         enableEdgeToEdge()
 
         setContent {
             MSCHTheme {
                 val navController = rememberNavController()
-                val settingsManager = remember { SettingsManager(this) }
                 val records by dao.getAllRecords().collectAsState(initial = emptyList())
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -144,13 +160,31 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.Settings.route) {
+                            val nextDate by viewModel.predictedNextDate.collectAsState()
+
                             SettingsScreen(
-                                settingsManager = settingsManager
+                                settingsManager = settingsManager,
+                                nextDateMillis = nextDate
                             )
                         }
                     }
                 }
             }
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Period Reminders"
+            val descriptionText = "Notifications about upcoming cycle"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("PERIOD_REMINDER_CH", name, importance).apply {
+                description = descriptionText
+            }
+
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }

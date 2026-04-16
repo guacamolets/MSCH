@@ -42,6 +42,8 @@ android {
 
 dependencies {
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.compose.animation)
+    implementation(libs.androidx.ui.graphics)
     val room_version = "2.6.1"
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
@@ -54,6 +56,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.activity:activity-ktx:1.8.2")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
