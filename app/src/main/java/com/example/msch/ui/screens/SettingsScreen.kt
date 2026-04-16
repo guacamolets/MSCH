@@ -16,10 +16,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.msch.R
-import com.example.msch.logic.SettingsManager
+import com.example.msch.services.SettingsManager
 import android.Manifest
 import android.content.pm.PackageManager
-import com.example.msch.logic.NotificationScheduler
+import com.example.msch.notifications.NotificationScheduler
 import android.app.TimePickerDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility

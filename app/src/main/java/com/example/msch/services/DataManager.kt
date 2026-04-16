@@ -1,9 +1,11 @@
-package com.example.msch.logic
+package com.example.msch.services
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.core.content.FileProvider
 import com.example.msch.entities.PeriodRecord
+import com.example.msch.services.DataSerializer
 import java.io.File
 
 class DataManager(private val context: Context) {
@@ -27,7 +29,7 @@ class DataManager(private val context: Context) {
             e.printStackTrace()
         }
     }
-    fun readImportFile(uri: android.net.Uri, onRecordsLoaded: (List<PeriodRecord>) -> Unit) {
+    fun readImportFile(uri: Uri, onRecordsLoaded: (List<PeriodRecord>) -> Unit) {
         try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 val content = inputStream.bufferedReader().use { it.readText() }

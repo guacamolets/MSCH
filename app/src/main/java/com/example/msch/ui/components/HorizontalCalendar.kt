@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.msch.entities.PeriodRecord
-import com.example.msch.logic.SettingsManager
+import com.example.msch.services.SettingsManager
 import java.text.SimpleDateFormat
 import java.util.*
 

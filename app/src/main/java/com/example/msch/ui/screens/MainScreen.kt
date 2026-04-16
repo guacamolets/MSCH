@@ -15,7 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.msch.R
 import com.example.msch.entities.PeriodRecord
 import com.example.msch.logic.CyclePredictor
-import com.example.msch.logic.SettingsManager
+import com.example.msch.services.SettingsManager
 import com.example.msch.ui.components.HorizontalCalendar
 import java.text.SimpleDateFormat
 import java.util.*

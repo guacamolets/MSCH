@@ -8,7 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import com.example.msch.R
 import com.example.msch.entities.PeriodRecord
-import com.example.msch.logic.DataSerializer
+import com.example.msch.services.DataSerializer
 
 @Composable
 fun DataMenu(

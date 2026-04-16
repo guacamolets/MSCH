@@ -1,4 +1,4 @@
-package com.example.msch.logic
+package com.example.msch.services
 
 import com.example.msch.entities.PeriodRecord
 import kotlinx.serialization.encodeToString
@@ -6,11 +6,10 @@ import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.collections.forEach
 
 object DataSerializer {
     fun toJson(records: List<PeriodRecord>): String {
-        return Json.encodeToString(records)
+        return Json.Default.encodeToString(records)
     }
 
     fun toCsv(records: List<PeriodRecord>): String {
@@ -28,7 +27,7 @@ object DataSerializer {
 
     fun fromJson(jsonString: String): List<PeriodRecord> {
         return try {
-            Json.decodeFromString<List<PeriodRecord>>(jsonString)
+            Json.Default.decodeFromString<List<PeriodRecord>>(jsonString)
         } catch (e: Exception) {
             emptyList()
         }

@@ -1,4 +1,4 @@
-package com.example.msch.logic
+package com.example.msch.services
 
 import android.content.Context
 

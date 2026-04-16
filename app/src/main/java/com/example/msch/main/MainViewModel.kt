@@ -1,10 +1,10 @@
-package com.example.msch
+package com.example.msch.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.msch.data.PeriodDao
 import com.example.msch.entities.PeriodRecord
-import com.example.msch.logic.SettingsManager
+import com.example.msch.services.SettingsManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -13,11 +13,11 @@ import java.util.Calendar
 
 class MainViewModel(private val dao: PeriodDao, private val settingsManager: SettingsManager) : ViewModel() {
     val records: StateFlow<List<PeriodRecord>> = dao.getAllRecords()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), emptyList())
 
     val predictedNextDate: StateFlow<Long> = records.map { list ->
         calculateNextPeriod(list, settingsManager.defaultCycleLength)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), System.currentTimeMillis())
+    }.stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), System.currentTimeMillis())
 
     private fun calculateNextPeriod(records: List<PeriodRecord>, cycleLength: Int): Long {
         val lastDate = records.maxOfOrNull { it.startDate } ?: return System.currentTimeMillis()

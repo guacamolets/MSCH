@@ -1,17 +1,14 @@
-package com.example.msch
+package com.example.msch.main
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -32,10 +29,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import com.example.msch.main.MainViewModel
+import com.example.msch.R
 import com.example.msch.data.AppDatabase
 import com.example.msch.entities.PeriodRecord
-import com.example.msch.logic.DataManager
-import com.example.msch.logic.SettingsManager
+import com.example.msch.services.DataManager
+import com.example.msch.services.SettingsManager
 import com.example.msch.ui.components.DataMenu
 import com.example.msch.ui.screens.HistoryScreen
 import com.example.msch.ui.screens.MainScreen
@@ -188,7 +187,7 @@ class MainActivity : AppCompatActivity() {
             val channel = NotificationChannel("PERIOD_REMINDER_CH", name, importance).apply {
                 description = descriptionText
             }
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

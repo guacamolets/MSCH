@@ -1,4 +1,4 @@
-package com.example.msch.logic
+package com.example.msch.notifications
 
 import android.app.NotificationManager
 import android.content.Context

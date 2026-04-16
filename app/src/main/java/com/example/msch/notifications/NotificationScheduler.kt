@@ -1,9 +1,10 @@
-package com.example.msch.logic
+package com.example.msch.notifications
 
 import android.content.Context
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.ExistingWorkPolicy
+import com.example.msch.services.SettingsManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
