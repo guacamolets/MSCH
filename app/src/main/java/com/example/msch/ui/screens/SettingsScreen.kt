@@ -21,17 +21,20 @@ import android.Manifest
 import android.content.pm.PackageManager
 import com.example.msch.logic.NotificationScheduler
 import android.app.TimePickerDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
+import androidx.core.os.LocaleListCompat
 
 @Composable
-fun SettingsScreen(settingsManager: SettingsManager, nextDateMillis: Long) {
+fun SettingsScreen(settingsManager: SettingsManager, nextDateMillis: Long, onThemeChanged: () -> Unit) {
     var cycleLength by remember { mutableIntStateOf(settingsManager.defaultCycleLength) }
     var periodLength by remember { mutableIntStateOf(settingsManager.defaultPeriodLength) }
     var reminderDays by remember { mutableIntStateOf(settingsManager.reminderDaysBefore) }
@@ -42,11 +45,20 @@ fun SettingsScreen(settingsManager: SettingsManager, nextDateMillis: Long) {
 
     val context = LocalContext.current
     val scheduler = remember { NotificationScheduler(context) }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
             scheduler.scheduleNotification(nextDateMillis, reminderDays)
+        }
+    }
+
+    val checkAndRequestPermission = {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 
@@ -63,14 +75,6 @@ fun SettingsScreen(settingsManager: SettingsManager, nextDateMillis: Long) {
         reminderMinute,
         true
     )
-
-    val checkAndRequestPermission = {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())
@@ -169,7 +173,159 @@ fun SettingsScreen(settingsManager: SettingsManager, nextDateMillis: Long) {
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        SettingsSection(title = stringResource(R.string.appearance_and_language)) {
+            SettingsRow(label = stringResource(R.string.theme)) {
+                var showThemeDialog by remember { mutableStateOf(false) }
+                val themes = listOf(
+                    stringResource(R.string.theme_system),
+                    stringResource(R.string.theme_light),
+                    stringResource(R.string.theme_dark)
+                )
+
+                TextButton(onClick = { showThemeDialog = true }) {
+                    Text(themes[settingsManager.appTheme])
+                }
+
+                if (showThemeDialog) {
+                    ThemeSelectionDialog(
+                        currentSelection = settingsManager.appTheme,
+                        onDismiss = { showThemeDialog = false },
+                        onSelect = {
+                            settingsManager.appTheme = it
+                            showThemeDialog = false
+                            onThemeChanged()
+                        }
+                    )
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), thickness = 0.5.dp)
+
+            SettingsRow(label = stringResource(R.string.language)) {
+                var showLangDialog by remember { mutableStateOf(false) }
+                val languages = mapOf(
+                    "system" to stringResource(R.string.lang_system),
+                    "ru" to "Русский",
+                    "en" to "English"
+                )
+
+                TextButton(onClick = { showLangDialog = true }) {
+                    Text(languages[settingsManager.appLanguage] ?: languages["system"]!!)
+                }
+
+                if (showLangDialog) {
+                    LanguageSelectionDialog(
+                        currentSelection = settingsManager.appLanguage,
+                        onDismiss = { showLangDialog = false },
+                        onSelect = {
+                            settingsManager.appLanguage = it
+                            showLangDialog = false
+
+                            val appLocale: LocaleListCompat = if (it == "system") {
+                                LocaleListCompat.getEmptyLocaleList()
+                            } else {
+                                LocaleListCompat.forLanguageTags(it)
+                            }
+                            AppCompatDelegate.setApplicationLocales(appLocale)
+                        }
+                    )
+                }
+            }
+        }
     }
+}
+
+@Composable
+fun ThemeSelectionDialog(currentSelection: Int, onDismiss: () -> Unit, onSelect: (Int) -> Unit) {
+    val options = listOf(
+        stringResource(R.string.theme_system),
+        stringResource(R.string.theme_light),
+        stringResource(R.string.theme_dark)
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.theme)) },
+        text = {
+            Column {
+                options.forEachIndexed { index, text ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = (index == currentSelection),
+                                onClick = { onSelect(index) }
+                            )
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (index == currentSelection),
+                            onClick = { onSelect(index) }
+                        )
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun LanguageSelectionDialog(currentSelection: String, onDismiss: () -> Unit, onSelect: (String) -> Unit) {
+    val options = listOf(
+        "system" to stringResource(R.string.lang_system),
+        "ru" to "Русский",
+        "en" to "English"
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.language)) },
+        text = {
+            Column {
+                options.forEach { (code, label) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = (code == currentSelection),
+                                onClick = { onSelect(code) }
+                            )
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (code == currentSelection),
+                            onClick = { onSelect(code) }
+                        )
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable
@@ -191,8 +347,7 @@ fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) 
 }
 
 @Composable
-fun SettingsRow(label: String, labelModifier: Modifier = Modifier, control: @Composable () -> Unit
-) {
+fun SettingsRow(label: String, labelModifier: Modifier = Modifier, control: @Composable () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,

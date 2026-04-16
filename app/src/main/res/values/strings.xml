@@ -32,7 +32,7 @@
     <string name="log_period_on_date_format">Отметить %1$s</string>
     <string name="history_empty">Здесь появится ваша история</string>
     <string name="add_record_button">Добавить запись</string>
-    <string name="remind_me_before">Напомнить за</string>
+    <string name="remind_me_before">За сколько дней</string>
     <string name="days_short">дн.</string>
     <string name="notification_title">Скоро начало цикла</string>
     <string name="notification_message">По прогнозу цикл начнется через несколько дней</string>
@@ -40,6 +40,13 @@
     <string name="cycle_settings">Цикл</string>
     <string name="remind_on_start_day">Начало месячных</string>
     <string name="notification_today_title">День цикла!</string>
-    <string name="notification_today_message">По прогнозу сегодня первый день. Не забудьте отметить в приложении.</string>
-    <string name="remind_before_start">За пару дней</string>
+    <string name="notification_today_message">По прогнозу сегодня первый день цикла. Не забудьте отметить в приложении.</string>
+    <string name="remind_before_start">Заранее</string>
+    <string name="appearance_and_language">Внешний вид и язык</string>
+    <string name="theme">Тема оформления</string>
+    <string name="language">Язык приложения</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Темная</string>
+    <string name="lang_system">Системный язык</string>
 </resources>

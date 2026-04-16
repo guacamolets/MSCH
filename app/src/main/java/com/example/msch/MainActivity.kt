@@ -1,10 +1,18 @@
 package com.example.msch
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
@@ -15,6 +23,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -34,15 +44,8 @@ import com.example.msch.ui.theme.MSCHTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
-import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val db by lazy {
         Room.databaseBuilder(applicationContext, AppDatabase::class.java, "period-db")
             .fallbackToDestructiveMigration()
@@ -78,7 +81,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            MSCHTheme {
+            var themeTick by remember { mutableIntStateOf(0) }
+
+            val darkTheme = remember(themeTick) {
+                when (settingsManager.appTheme) {
+                    1 -> false
+                    2 -> true
+                    else -> null
+                }
+            } ?: isSystemInDarkTheme()
+
+            MSCHTheme(darkTheme = darkTheme) {
                 val navController = rememberNavController()
                 val records by dao.getAllRecords().collectAsState(initial = emptyList())
 
@@ -142,29 +155,23 @@ class MainActivity : ComponentActivity() {
                             HistoryScreen(
                                 records = records,
                                 onInsert = { newMillis ->
-                                    scope.launch(Dispatchers.IO) {
-                                        dao.insert(PeriodRecord(startDate = newMillis))
-                                    }
+                                    scope.launch(Dispatchers.IO) { dao.insert(PeriodRecord(startDate = newMillis)) }
                                 },
                                 onUpdate = { record, newMillis ->
-                                    scope.launch(Dispatchers.IO) {
-                                        dao.update(record.copy(startDate = newMillis))
-                                    }
+                                    scope.launch(Dispatchers.IO) { dao.update(record.copy(startDate = newMillis)) }
                                 },
                                 onDelete = { record ->
-                                    scope.launch(Dispatchers.IO) {
-                                        dao.delete(record)
-                                    }
+                                    scope.launch(Dispatchers.IO) { dao.delete(record) }
                                 }
                             )
                         }
 
                         composable(Screen.Settings.route) {
                             val nextDate by viewModel.predictedNextDate.collectAsState()
-
                             SettingsScreen(
                                 settingsManager = settingsManager,
-                                nextDateMillis = nextDate
+                                nextDateMillis = nextDate,
+                                onThemeChanged = { themeTick++ }
                             )
                         }
                     }
@@ -181,9 +188,7 @@ class MainActivity : ComponentActivity() {
             val channel = NotificationChannel("PERIOD_REMINDER_CH", name, importance).apply {
                 description = descriptionText
             }
-
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

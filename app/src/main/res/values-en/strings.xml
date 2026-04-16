@@ -42,4 +42,11 @@
     <string name="notification_today_title">Cycle Day!</string>
     <string name="notification_today_message">Today is the predicted start day. Don\'t forget to log it.</string>
     <string name="remind_before_start">Remind in advance</string>
+    <string name="appearance_and_language">Внешний вид и язык</string>
+    <string name="theme">Тема оформления</string>
+    <string name="language">Язык приложения</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Темная</string>
+    <string name="lang_system">Системный язык</string>
 </resources>

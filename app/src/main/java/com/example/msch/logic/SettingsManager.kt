@@ -13,6 +13,8 @@ class SettingsManager(context: Context) {
         private const val KEY_REMINDER_MINUTE = "reminder_minute"
         private const val KEY_REMIND_TODAY = "remind_today"
         private const val KEY_REMIND_BEFORE_ENABLED = "remind_before_enabled"
+        private const val KEY_THEME = "app_theme"
+        private const val KEY_LANGUAGE = "app_language"
     }
 
     var defaultCycleLength: Int
@@ -42,4 +44,12 @@ class SettingsManager(context: Context) {
     var remindBeforeEnabled: Boolean
         get() = prefs.getBoolean(KEY_REMIND_BEFORE_ENABLED, true)
         set(value) = prefs.edit().putBoolean(KEY_REMIND_BEFORE_ENABLED, value).apply()
+
+    var appTheme: Int
+        get() = prefs.getInt(KEY_THEME, 0)
+        set(value) = prefs.edit().putInt(KEY_THEME, value).apply()
+
+    var appLanguage: String
+        get() = prefs.getString(KEY_LANGUAGE, "system") ?: "system"
+        set(value) = prefs.edit().putString(KEY_LANGUAGE, value).apply()
 }

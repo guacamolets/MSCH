@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.appcompat)
     val room_version = "2.6.1"
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
