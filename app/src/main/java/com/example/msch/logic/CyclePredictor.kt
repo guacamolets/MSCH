@@ -52,5 +52,4 @@ object CyclePredictor {
 
         return (diff / AppConfig.MILLIS_IN_DAY).toInt()
     }
-
 }

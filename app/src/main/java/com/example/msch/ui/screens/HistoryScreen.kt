@@ -31,45 +31,28 @@ fun HistoryScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var isAddingNewRecord by remember { mutableStateOf(false) }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    isAddingNewRecord = true
-                    showDatePicker = true
-                },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                shape = CircleShape
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
-        }
-    ) { paddingValues ->
-        if (records.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Empty",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+    val sortedRecords = remember(records) { records.sortedByDescending { it.startDate } }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        if (sortedRecords.isEmpty()) {
+            Text(
+                text = stringResource(R.string.no_history_yet),
+                modifier = Modifier.align(Alignment.Center),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(top = 16.dp, bottom = 88.dp)
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp)
             ) {
-                val sortedRecords = records.sortedByDescending { it.startDate }
-
                 itemsIndexed(sortedRecords) { index, record ->
-                    val cycleLength = if (index < sortedRecords.size - 1) {
-                        val diff = record.startDate - sortedRecords[index + 1].startDate
-                        (diff / (1000 * 60 * 60 * 24)).toInt()
-                    } else null
+                    val cycleLength = remember(sortedRecords) {
+                        if (index < sortedRecords.size - 1) {
+                            val diff = record.startDate - sortedRecords[index + 1].startDate
+                            (diff / 86400000L).toInt()
+                        } else null
+                    }
 
                     PeriodItem(
                         record = record,
@@ -79,79 +62,97 @@ fun HistoryScreen(
                             isAddingNewRecord = false
                         }
                     )
-
-                    if (index < sortedRecords.size - 1) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+        }
+
+        FloatingActionButton(
+            onClick = {
+                isAddingNewRecord = true
+                showDatePicker = true
+            },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            shape = CircleShape
+        ) {
+            Icon(Icons.Default.Add, contentDescription = null)
         }
     }
 
     if (showDatePicker) {
-        val initialDate = if (isAddingNewRecord) System.currentTimeMillis() else selectedRecord?.startDate
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDate)
-
-        DatePickerDialog(
-            onDismissRequest = {
+        HistoryDatePicker(
+            isAdding = isAddingNewRecord,
+            record = selectedRecord,
+            onDismiss = {
                 showDatePicker = false
-                if (isAddingNewRecord) isAddingNewRecord = false
+                isAddingNewRecord = false
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        if (isAddingNewRecord) {
-                            onInsert(millis)
-                        } else {
-                            selectedRecord?.let { onUpdate(it, millis) }
-                        }
-                    }
-                    showDatePicker = false
-                    isAddingNewRecord = false
-                    selectedRecord = null
-                }) { Text(stringResource(R.string.ok_button)) }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showDatePicker = false
-                    isAddingNewRecord = false
-                }) {
-                    Text(stringResource(R.string.cancel_button))
-                }
+            onConfirm = { millis ->
+                if (isAddingNewRecord) onInsert(millis)
+                else selectedRecord?.let { onUpdate(it, millis) }
+                showDatePicker = false
+                isAddingNewRecord = false
+                selectedRecord = null
             }
-        ) {
-            DatePicker(state = datePickerState)
-        }
+        )
     }
 
     selectedRecord?.let { record ->
         if (!showDatePicker) {
-            AlertDialog(
-                onDismissRequest = { selectedRecord = null },
-                title = { Text(stringResource(R.string.manage_record_title)) },
-                text = {
-                    val formattedDate = android.text.format.DateFormat
-                        .getDateFormat(LocalContext.current)
-                        .format(Date(record.startDate))
-                    Text(text = stringResource(R.string.selected_date, formattedDate))
+            RecordActionDialog(
+                record = record,
+                onDelete = {
+                    onDelete(record)
+                    selectedRecord = null
                 },
-                confirmButton = {
-                    TextButton(onClick = {
-                        onDelete(record)
-                        selectedRecord = null
-                    }) {
-                        Text(
-                            text = stringResource(R.string.delete_button),
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = true }) {
-                        Text(stringResource(R.string.edit_button))
-                    }
-                }
+                onEdit = { showDatePicker = true },
+                onDismiss = { selectedRecord = null }
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HistoryDatePicker(isAdding: Boolean, record: PeriodRecord?, onDismiss: () -> Unit, onConfirm: (Long) -> Unit) {
+    val initialDate = if (isAdding) System.currentTimeMillis() else record?.startDate
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDate)
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                datePickerState.selectedDateMillis?.let { onConfirm(it) }
+            }) { Text(stringResource(R.string.ok_button)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel_button)) }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
+@Composable
+fun RecordActionDialog(record: PeriodRecord, onDelete: () -> Unit, onEdit: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.manage_record_title)) },
+        text = {
+            val formattedDate = android.text.format.DateFormat
+                .getDateFormat(LocalContext.current)
+                .format(Date(record.startDate))
+            Text(text = stringResource(R.string.selected_date, formattedDate))
+        },
+        confirmButton = {
+            TextButton(onClick = onDelete) {
+                Text(stringResource(R.string.delete_button), color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onEdit) { Text(stringResource(R.string.edit_button)) }
+        }
+    )
 }
