@@ -50,4 +50,6 @@
     <string name="theme_dark">Темная</string>
     <string name="lang_system">Системный язык</string>
     <string name="no_history_yet">Записей пока нет. Нажмите +, чтобы внести данные</string>
+    <string name="period_active">Идут месячные</string>
+    <string name="end_period_button">Отметить конец</string>
 </resources>

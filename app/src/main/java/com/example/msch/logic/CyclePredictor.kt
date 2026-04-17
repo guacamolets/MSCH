@@ -4,19 +4,23 @@ import com.example.msch.entities.PeriodRecord
 import java.util.concurrent.TimeUnit
 
 object CyclePredictor {
+    private fun getRecordDuration(record: PeriodRecord, defaultLength: Int): Long {
+        return if (record.endDate != null) {
+            record.endDate - record.startDate
+        } else {
+            defaultLength * AppConfig.MILLIS_IN_DAY
+        }
+    }
+
     fun predictNextCycle(records: List<PeriodRecord>, defaultCycleLength: Int): Long {
         val cycleMillis = TimeUnit.DAYS.toMillis(defaultCycleLength.toLong())
 
-        if (records.isEmpty()) {
-            return System.currentTimeMillis() + cycleMillis
-        }
-
-        if (records.size < 2) {
-            return records.first().startDate + cycleMillis
-        }
+        if (records.isEmpty()) return System.currentTimeMillis() + cycleMillis
+        if (records.size < 2) return records.first().startDate + cycleMillis
 
         val limitedRecords = records.take(AppConfig.MAX_RECORDS + 1)
         val intervals = mutableListOf<Long>()
+
         for (i in 0 until limitedRecords.size - 1) {
             val diff = limitedRecords[i].startDate - limitedRecords[i + 1].startDate
             intervals.add(diff)
@@ -26,18 +30,30 @@ object CyclePredictor {
         return records.first().startDate + if (averageInterval > 0) averageInterval else cycleMillis
     }
 
-    fun calculateAverage(records: List<PeriodRecord>, defaultCycleLength: Int): Int {
+    fun calculateAverageCycle(records: List<PeriodRecord>, defaultCycleLength: Int): Int {
         if (records.size < 2) return defaultCycleLength
 
         val limitedRecords = records.take(AppConfig.MAX_RECORDS + 1)
         val durations = mutableListOf<Long>()
+
         for (i in 0 until limitedRecords.size - 1) {
             val diff = limitedRecords[i].startDate - limitedRecords[i + 1].startDate
             durations.add(diff / AppConfig.MILLIS_IN_DAY)
         }
 
+        return if (durations.isNotEmpty()) durations.average().toInt() else defaultCycleLength
+    }
+
+    fun calculateAveragePeriod(records: List<PeriodRecord>, defaultLength: Int): Int {
+        if (records.isEmpty()) return defaultLength
+
+        val durations = records.take(10).map { record ->
+            getRecordDuration(record, defaultLength) / AppConfig.MILLIS_IN_DAY
+        }
+
         return durations.average().toInt()
     }
+
     fun getCurrentDay(records: List<PeriodRecord>): Int? {
         if (records.isEmpty()) return null
 

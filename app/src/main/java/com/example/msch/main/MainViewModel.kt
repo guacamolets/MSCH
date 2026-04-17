@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.msch.data.PeriodDao
 import com.example.msch.entities.PeriodRecord
+import com.example.msch.logic.AppConfig
 import com.example.msch.services.SettingsManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -52,5 +53,26 @@ class MainViewModel(private val dao: PeriodDao, private val settingsManager: Set
             set(Calendar.HOUR_OF_DAY, 9)
             set(Calendar.MINUTE, 0)
         }.timeInMillis
+    }
+
+    fun endPeriod(millis: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val lastRecord = records.value.maxByOrNull { it.startDate }
+            if (lastRecord != null && lastRecord.endDate == null) {
+                val endDateMillis = if (millis < lastRecord.startDate) lastRecord.startDate else millis
+                dao.update(lastRecord.copy(endDate = endDateMillis))
+            }
+        }
+    }
+
+    fun sanitizeRecords() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val now = System.currentTimeMillis()
+            val limit = AppConfig.AUTO_CLOSE_DAYS * AppConfig.MILLIS_IN_DAY
+            val defaultDuration = settingsManager.defaultPeriodLength * AppConfig.MILLIS_IN_DAY
+
+            records.value.filter { it.endDate == null && (now - it.startDate) > limit }
+                .forEach { record -> dao.update(record.copy(endDate = record.startDate + defaultDuration)) }
+        }
     }
 }

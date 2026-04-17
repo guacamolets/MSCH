@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
@@ -32,11 +33,13 @@ import com.example.msch.services.SettingsManager
 import com.example.msch.ui.components.DataMenu
 import com.example.msch.ui.screens.*
 import com.example.msch.ui.theme.MSCHTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private val db by lazy {
         Room.databaseBuilder(applicationContext, AppDatabase::class.java, "period-db")
-            .fallbackToDestructiveMigration().build()
+            .fallbackToDestructiveMigration()
+            .build()
     }
     private val settingsManager by lazy { SettingsManager(this) }
     private val dataManager by lazy { DataManager(this) }
@@ -58,6 +61,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         createNotificationChannel()
         enableEdgeToEdge()
+
+        lifecycleScope.launch {
+            viewModel.sanitizeRecords()
+        }
 
         setContent {
             var themeTick by remember { mutableIntStateOf(0) }
@@ -150,7 +157,8 @@ fun AppNavigation(
             MainScreen(
                 records = records,
                 settingsManager = settingsManager,
-                onInsert = { viewModel.addRecord(it) }
+                onInsert = { viewModel.addRecord(it) },
+                onEndPeriod = { viewModel.endPeriod(it) }
             )
         }
         composable(Screen.History.route) {

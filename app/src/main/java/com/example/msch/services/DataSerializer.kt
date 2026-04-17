@@ -16,11 +16,12 @@ object DataSerializer {
         return buildString {
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-            append("ID,Start Date (Millis),Readable Date\n")
+            append("ID,Start Date,End Date\n")
 
             records.forEach { record ->
-                val date = sdf.format(Date(record.startDate))
-                append("${record.id},${record.startDate},$date\n")
+                val startDate = sdf.format(Date(record.startDate))
+                val endDate = record.endDate?.let { sdf.format(Date(it)) } ?: ""
+                append("${record.id},$startDate,$endDate\n")
             }
         }
     }

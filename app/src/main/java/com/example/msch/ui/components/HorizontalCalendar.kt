@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.example.msch.entities.CalendarDay
 import com.example.msch.entities.DayStatus
 import com.example.msch.entities.PeriodRecord
+import com.example.msch.logic.AppConfig
 import com.example.msch.services.SettingsManager
 import java.text.SimpleDateFormat
 import java.util.*
@@ -75,23 +76,28 @@ private fun calculateDayData(
     settingsManager: SettingsManager
 ): CalendarDay {
     val isToday = android.text.format.DateUtils.isToday(time)
-
-    val lastRealRecord = sortedRecords.lastOrNull { it.startDate <= time }
+    val now = System.currentTimeMillis()
+    val record = sortedRecords.lastOrNull { it.startDate <= time }
 
     val cleanNextDate = Calendar.getInstance().apply {
         timeInMillis = nextDateMillis
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
     }.timeInMillis
 
-    val isPeriod = lastRealRecord != null &&
-            time >= lastRealRecord.startDate &&
-            time < lastRealRecord.startDate + (settingsManager.defaultPeriodLength * 86400000L)
+    val isPeriod = record != null && run {
+        val start = record.startDate
+        val defaultEnd = start + (settingsManager.defaultPeriodLength * AppConfig.MILLIS_IN_DAY)
+        val actualEnd = record.endDate ?: defaultEnd
 
-    val isPrediction = time >= cleanNextDate &&
-            time < cleanNextDate + (settingsManager.defaultPeriodLength * 86400000L)
+        if (record.endDate == null) {
+            time >= start && time <= now && time < actualEnd
+        } else {
+            time >= start && time <= actualEnd
+        }
+    }
+
+    val isPrediction = !isPeriod && time >= cleanNextDate &&
+            time < cleanNextDate + (settingsManager.defaultPeriodLength * AppConfig.MILLIS_IN_DAY)
 
     val status = when {
         isPeriod -> DayStatus.Period
@@ -99,15 +105,8 @@ private fun calculateDayData(
         else -> DayStatus.None
     }
 
-    val referenceDate = if (time >= cleanNextDate && (lastRealRecord == null || cleanNextDate > lastRealRecord.startDate)) {
-        cleanNextDate
-    } else {
-        lastRealRecord?.startDate
-    }
-
-    val dayOfCycle = referenceDate?.let {
-        ((time - it) / 86400000L).toInt() + 1
-    }
+    val referenceDate = if (status == DayStatus.Prediction) cleanNextDate else record?.startDate
+    val dayOfCycle = referenceDate?.let { ((time - it) / AppConfig.MILLIS_IN_DAY).toInt() + 1 }
 
     return CalendarDay(
         date = date,

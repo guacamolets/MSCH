@@ -50,4 +50,6 @@
     <string name="theme_dark">Dark</string>
     <string name="lang_system">System language</string>
     <string name="no_history_yet">No records yet. Tap + to add one</string>
+    <string name="period_active">Period is active</string>
+    <string name="end_period_button">End period</string>
 </resources>
