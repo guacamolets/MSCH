@@ -165,7 +165,7 @@ fun AppNavigation(
             HistoryScreen(
                 records = records,
                 onInsert = { viewModel.addRecord(it) },
-                onUpdate = { r, m -> viewModel.updateRecord(r, m) },
+                onUpdate = { viewModel.updateRecord(it) },
                 onDelete = { viewModel.deleteRecord(it) }
             )
         }

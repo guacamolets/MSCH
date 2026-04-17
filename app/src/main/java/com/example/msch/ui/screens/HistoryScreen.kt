@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.msch.R
 import com.example.msch.entities.PeriodRecord
+import com.example.msch.logic.AppConfig
 import com.example.msch.ui.components.PeriodItem
 import java.util.Date
 
@@ -23,7 +24,7 @@ import java.util.Date
 fun HistoryScreen(
     records: List<PeriodRecord>,
     onInsert: (Long) -> Unit,
-    onUpdate: (PeriodRecord, Long) -> Unit,
+    onUpdate: (PeriodRecord) -> Unit,
     onDelete: (PeriodRecord) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -50,13 +51,21 @@ fun HistoryScreen(
                     val cycleLength = remember(sortedRecords) {
                         if (index < sortedRecords.size - 1) {
                             val diff = record.startDate - sortedRecords[index + 1].startDate
-                            (diff / 86400000L).toInt()
+                            (diff / AppConfig.MILLIS_IN_DAY).toInt()
                         } else null
+                    }
+
+                    val periodDuration = remember(record) {
+                        record.endDate?.let {
+                            val diff = it - record.startDate
+                            (diff / AppConfig.MILLIS_IN_DAY).toInt() + 1
+                        }
                     }
 
                     PeriodItem(
                         record = record,
                         cycleLength = cycleLength,
+                        periodDuration = periodDuration,
                         onClick = {
                             selectedRecord = record
                             isAddingNewRecord = false
@@ -89,9 +98,19 @@ fun HistoryScreen(
                 showDatePicker = false
                 isAddingNewRecord = false
             },
-            onConfirm = { millis ->
-                if (isAddingNewRecord) onInsert(millis)
-                else selectedRecord?.let { onUpdate(it, millis) }
+            onConfirm = { startMillis, endMillis ->
+                if (isAddingNewRecord) {
+                    onInsert(startMillis)
+                    // viewModel.addRecordWithEnd(startMillis, endMillis)
+                } else {
+                    selectedRecord?.let { record ->
+                        val updatedRecord = record.copy(
+                            startDate = startMillis,
+                            endDate = endMillis
+                        )
+                        onUpdate(updatedRecord)
+                    }
+                }
                 showDatePicker = false
                 isAddingNewRecord = false
                 selectedRecord = null
@@ -116,22 +135,38 @@ fun HistoryScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryDatePicker(isAdding: Boolean, record: PeriodRecord?, onDismiss: () -> Unit, onConfirm: (Long) -> Unit) {
-    val initialDate = if (isAdding) System.currentTimeMillis() else record?.startDate
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDate)
+fun HistoryDatePicker(
+    isAdding: Boolean,
+    record: PeriodRecord?,
+    onDismiss: () -> Unit,
+    onConfirm: (Long, Long?) -> Unit
+) {
+    val datePickerState = rememberDateRangePickerState(
+        initialSelectedStartDateMillis = record?.startDate ?: System.currentTimeMillis(),
+        initialSelectedEndDateMillis = record?.endDate
+    )
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = {
-                datePickerState.selectedDateMillis?.let { onConfirm(it) }
+                val start = datePickerState.selectedStartDateMillis
+                val end = datePickerState.selectedEndDateMillis
+                if (start != null) {
+                    onConfirm(start, end)
+                }
             }) { Text(stringResource(R.string.ok_button)) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel_button)) }
         }
     ) {
-        DatePicker(state = datePickerState)
+        DateRangePicker(
+            state = datePickerState,
+            title = { Text(stringResource(R.string.select_period_range), modifier = Modifier.padding(16.dp)) },
+            showModeToggle = false,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 

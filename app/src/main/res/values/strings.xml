@@ -52,4 +52,7 @@
     <string name="no_history_yet">Записей пока нет. Нажмите +, чтобы внести данные</string>
     <string name="period_active">Идут месячные</string>
     <string name="end_period_button">Отметить конец</string>
+    <string name="select_period_range">Выберите даты начала и конца</string>
+    <string name="period_duration_format">Длительность: %d дн.</string>
+    <string name="cycle_duration_format">Цикл: %d дн.</string>
 </resources>

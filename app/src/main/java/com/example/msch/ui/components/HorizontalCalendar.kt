@@ -39,24 +39,28 @@ fun HorizontalCalendar(
     val listState = rememberLazyListState(initialIndex - 3)
     val sortedRecords = remember(records) { records.sortedBy { it.startDate } }
 
+    val baseTime = remember {
+        Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+
     LazyRow(
         state = listState,
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        items(totalDays) { index ->
-            val calendar = Calendar.getInstance().apply {
-                add(Calendar.DAY_OF_YEAR, index - initialIndex)
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
+        items(count = totalDays, key = { it }) { index ->
+            val time = remember(index) {
+                baseTime + (index - initialIndex) * AppConfig.MILLIS_IN_DAY
             }
-            val time = calendar.timeInMillis
-
+            val date = remember(time) { Date(time) }
             val dayData = remember(time, sortedRecords, nextDateMillis) {
-                calculateDayData(time, calendar.time, sortedRecords, nextDateMillis, settingsManager)
+                calculateDayData(time, date, sortedRecords, nextDateMillis, settingsManager)
             }
 
             DayItem(
@@ -106,7 +110,10 @@ private fun calculateDayData(
     }
 
     val referenceDate = if (status == DayStatus.Prediction) cleanNextDate else record?.startDate
-    val dayOfCycle = referenceDate?.let { ((time - it) / AppConfig.MILLIS_IN_DAY).toInt() + 1 }
+    val dayOfCycle = referenceDate?.let {
+        val diff = (time - it) / AppConfig.MILLIS_IN_DAY
+        if (diff in 0..45) (diff + 1).toInt() else null
+    }
 
     return CalendarDay(
         date = date,
@@ -119,6 +126,9 @@ private fun calculateDayData(
 
 @Composable
 fun DayItem(day: CalendarDay, isSelected: Boolean, onDateClick: () -> Unit) {
+    val dayNameFormatter = remember { SimpleDateFormat("E", Locale.getDefault()) }
+    val dayNumberFormatter = remember { SimpleDateFormat("d", Locale.getDefault()) }
+
     val backgroundColor = when (day.status) {
         DayStatus.Period -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
         DayStatus.Prediction -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
@@ -149,14 +159,14 @@ fun DayItem(day: CalendarDay, isSelected: Boolean, onDateClick: () -> Unit) {
             )
     ) {
         Text(
-            text = SimpleDateFormat("E", Locale.getDefault()).format(day.date).uppercase(),
+            text = dayNameFormatter.format(day.date).uppercase(),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = contentColor.copy(alpha = 0.6f)
         )
 
         Text(
-            text = SimpleDateFormat("d", Locale.getDefault()).format(day.date),
+            text = dayNumberFormatter.format(day.date),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.ExtraBold,
             color = contentColor
