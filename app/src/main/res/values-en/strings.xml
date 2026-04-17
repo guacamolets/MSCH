@@ -1,85 +1,78 @@
 <resources>
     <string name="app_name">MSCH</string>
-    <string name="next_period_label">Next cycle starts:</string>
-    <string name="log_period_button">Track period</string>
+
+    <string name="nav_main">Main</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+    <string name="history_title">History</string>
+    <string name="settings">Settings</string>
+    <string name="menu_title">Menu</string>
+    <string name="back">Back</string>
+
+    <string name="period_header_expected">Period in</string>
+    <string name="days_count_format">%1$d days</string>
+    <string name="period_active">Period is active</string>
+    <string name="period_soon">Cycle starts soon</string>
+    <string name="period_overdue">Late</string>
+    <string name="no_data">No records yet. Tap + to add one</string>
+
+    <string name="log_period_button">Track today</string>
+    <string name="end_period_button">End period</string>
+    <string name="log_period_on_date_format">Log for %1$s</string>
+
+    <string name="label_cycle">Cycle</string>
+    <string name="label_periods">Period</string>
+    <string name="status_subtitle_format">Day: %1$d&#160;&#160;•&#160;&#160;Next period: %2$s</string>
+    <string name="stats_subtitle_format">Last: %1$d days&#160;&#160;•&#160;&#160;Range: %2$s days</string>
+
+    <string name="manage_record_title">Manage record</string>
+    <string name="selected_date">Date: %1$s</string>
+    <string name="period_duration_format">Duration: %d days</string>
+    <string name="cycle_duration_format">Cycle: %d days</string>
+    <string name="select_period_range">Select start and end dates</string>
+    <string name="history_empty">Your history will appear here</string>
+    <string name="add_record_button">Add record</string>
+
     <string name="edit_button">Edit</string>
     <string name="delete_button">Delete</string>
     <string name="cancel_button">Cancel</string>
     <string name="ok_button">OK</string>
-    <string name="history_title">History</string>
-    <string name="manage_record_title">Manage record</string>
-    <string name="selected_date">Date: %1$s</string>
-    <string name="days_suffix">days</string>
-    <string name="average_cycle_label">Average cycle</string>
-    <string name="file_import_title">Import from file</string>
-    <string name="json_export_title">Export to JSON</string>
-    <string name="csv_export_title">Export to CSV</string>
-    <string name="menu_title">Menu</string>
-    <string name="settings">Settings</string>
-    <string name="back">Back</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_import">Import</string>
+
+    <string name="cycle_settings">Cycle</string>
     <string name="average_cycle_length">Cycle length</string>
     <string name="period_duration">Period length</string>
+
     <string name="notifications">Notifications</string>
-    <string name="nav_main">Main</string>
-    <string name="nav_history">History</string>
-    <string name="nav_settings">Settings</string>
-    <string name="current_day_label">cycle day</string>
-    <string name="day_format">Day %d</string>
-    <string name="days_until_format">Next cycle in %d days</string>
-    <string name="period_soon">Cycle starts soon</string>
-    <string name="expected_on">Expected on</string>
-    <string name="period_overdue">Late</string>
-    <string name="log_period_on_date_format">Log for %1$s</string>
-    <string name="history_empty">Your history will appear here</string>
-    <string name="add_record_button">Add record</string>
-    <string name="remind_me_before">Remind me before</string>
-    <string name="days_short">days</string>
+    <string name="notification_time">Notification time</string>
+    <string name="remind_before_start">In advance</string>
+    <string name="remind_me_before">Days before</string>
+    <string name="remind_on_start_day">On start day</string>
     <string name="notification_title">Cycle starting soon</string>
     <string name="notification_message">Your cycle is predicted to start in a few days</string>
-    <string name="notification_time">Notification time</string>
-    <string name="cycle_settings">Cycle settings</string>
-    <string name="remind_on_start_day">Notify on start day</string>
     <string name="notification_today_title">Cycle Day!</string>
     <string name="notification_today_message">Today is the predicted start day. Don\'t forget to log it.</string>
-    <string name="remind_before_start">Remind in advance</string>
+
     <string name="appearance_and_language">Appearance and language</string>
     <string name="theme">Theme</string>
-    <string name="language">Language</string>
     <string name="theme_system">System default</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-    <string name="lang_system">System language</string>
-    <string name="no_data">No records yet. Tap + to add one</string>
-    <string name="period_active">Period is active</string>
-    <string name="end_period_button">End period</string>
-    <string name="select_period_range">Select start and end dates</string>
-    <string name="period_duration_format">Period: %d days</string>
-    <string name="cycle_duration_format">Cycle: %d days</string>
+    <string name="language">Language</string>
+    <string name="lang_system">System default</string>
+
+    <string name="data_management">Data Management</string>
     <string name="import_from_file">Import from file</string>
     <string name="import_from_text">Paste text</string>
+    <string name="file_import_title">Import from file</string>
+    <string name="json_export_title">Export to JSON</string>
+    <string name="csv_export_title">Export to CSV</string>
     <string name="import_dialog_title">Import from text</string>
-    <string name="import_dialog_hint">Paste date strings. We will handle the format and close periods automatically.</string>
-    <string name="import_dialog_placeholder">2024-01-01, 2024-01-05\n2024-02-01</string>
-    <string name="button_import">Import</string>
-    <string name="button_cancel">Cancel</string>
-    <string name="data_management">Data Management</string>
+    <string name="import_dialog_hint">Paste date strings.\nEach record starts on a new line.\nEnd date (optional) separated by a comma.</string>
+    <string name="import_dialog_placeholder">2024-01-01,2024-01-05\n01.02.2024</string>
     <string name="clear_history">Clear all history</string>
     <string name="delete_all_title">Delete all data?</string>
     <string name="delete_all_confirmation">All records will be permanently deleted. We recommend making an export first.</string>
     <string name="button_delete_confirm">Delete all</string>
-    <string name="cycle_stats_format">%1$d day cycle</string>
-    <string name="period_stats_format">Period: %1$d days</string>
-    <string name="cycle_variation_format">%1$s day variation</string>
-    <string name="period_variation_format">Period: %1$s days</string>
-    <string name="day_prefix">Day %1$d</string>
-    <string name="next_period_prefix">Next period: %1$s</string>
-    <string name="period_header_expected">Period in</string>
-    <string name="days_count_format">%1$d days</string>
-    <string name="current_day">cycle day %2$d</string>
-    <string name="stats_last">Last: %1$d days</string>
-    <string name="stats_range">Range: %1$s days</string>
-    <string name="label_cycle">Cycle</string>
-    <string name="label_periods">Period</string>
-    <string name="status_subtitle_format">Day: %1$d • Next period: %2$s</string>
-    <string name="stats_subtitle_format">Last: %1$d days • Range: %2$s days</string>
 </resources>

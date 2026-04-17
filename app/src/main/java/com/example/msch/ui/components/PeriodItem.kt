@@ -64,7 +64,7 @@ fun PeriodItem(
                         shape = CircleShape
                     ) {
                         Text(
-                            text = "$days ${stringResource(R.string.days_suffix)}",
+                            text = stringResource(R.string.days_count_format, days),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
