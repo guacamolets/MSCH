@@ -1,3 +1,9 @@
+configurations {
+    all {
+        exclude(group = "com.intellij", module = "annotations")
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -45,6 +51,7 @@ dependencies {
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.room3.compiler)
     val room_version = "2.6.1"
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")

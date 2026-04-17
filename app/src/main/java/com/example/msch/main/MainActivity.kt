@@ -91,7 +91,8 @@ class MainActivity : AppCompatActivity() {
                                 DataMenu(
                                     records = records,
                                     onShare = { c, n -> dataManager.shareFile(c, n) },
-                                    onImport = { importLauncher.launch("application/json") }
+                                    onImportFile = { importLauncher.launch("*/*") },
+                                    onImportText = { rawText -> viewModel.importRawText(rawText) }
                                 )
                             }
                         )
@@ -170,7 +171,7 @@ fun AppNavigation(
             )
         }
         composable(Screen.Settings.route) {
-            SettingsScreen(settingsManager, nextDate, onThemeChanged)
+            SettingsScreen(settingsManager, nextDate, onThemeChanged, onDeleteAll = {viewModel.clearAllHistory()})
         }
     }
 }

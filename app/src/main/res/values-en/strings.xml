@@ -11,7 +11,7 @@
     <string name="selected_date">Date: %1$s</string>
     <string name="days_suffix">days</string>
     <string name="average_cycle_label">Average cycle</string>
-    <string name="json_import_title">Import from JSON</string>
+    <string name="file_import_title">Import from file</string>
     <string name="json_export_title">Export to JSON</string>
     <string name="csv_export_title">Export to CSV</string>
     <string name="menu_title">Menu</string>
@@ -55,4 +55,16 @@
     <string name="select_period_range">Select start and end dates</string>
     <string name="period_duration_format">Period: %d days</string>
     <string name="cycle_duration_format">Cycle: %d days</string>
+    <string name="import_from_file">Import from file</string>
+    <string name="import_from_text">Paste text</string>
+    <string name="import_dialog_title">Import from text</string>
+    <string name="import_dialog_hint">Paste date strings. We will handle the format and close periods automatically.</string>
+    <string name="import_dialog_placeholder">2024-01-01, 2024-01-05\n2024-02-01</string>
+    <string name="button_import">Import</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="data_management">Data Management</string>
+    <string name="clear_history">Clear all history</string>
+    <string name="delete_all_title">Delete all data?</string>
+    <string name="delete_all_confirmation">All records will be permanently deleted. We recommend making an export first.</string>
+    <string name="button_delete_confirm">Delete all</string>
 </resources>

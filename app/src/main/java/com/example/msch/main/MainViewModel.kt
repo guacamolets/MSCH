@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.msch.data.PeriodDao
 import com.example.msch.entities.PeriodRecord
 import com.example.msch.logic.AppConfig
+import com.example.msch.services.DataSerializer
 import com.example.msch.services.SettingsManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -41,10 +42,29 @@ class MainViewModel(private val dao: PeriodDao, private val settingsManager: Set
         }
     }
 
-    fun importRecords(recordsToImport: List<PeriodRecord>) {
+    fun importRecords(records: List<PeriodRecord>) {
         viewModelScope.launch(Dispatchers.IO) {
-            val sanitized = applySanitization(recordsToImport)
+            val sanitized = applySanitization(records)
             dao.insertAll(sanitized)
+        }
+    }
+
+    fun importRawText(text: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val records = DataSerializer.fromCsv(text)
+
+            if (records.isNotEmpty()) {
+                val sanitized = applySanitization(records)
+                dao.insertAll(sanitized)
+            }
+        }
+    }
+
+    fun clearAllHistory() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.deleteAll()
+
+            //notificationScheduler.cancelAll()
         }
     }
 

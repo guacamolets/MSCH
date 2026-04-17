@@ -25,4 +25,7 @@ interface PeriodDao {
 
     @Delete
     fun delete(record: PeriodRecord)
+
+    @Query("DELETE FROM periods")
+    fun deleteAll()
 }

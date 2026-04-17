@@ -42,4 +42,13 @@ class NotificationScheduler(private val context: Context) {
     fun cancelNotification(tag: String) {
         WorkManager.getInstance(context).cancelUniqueWork(tag)
     }
+
+    fun cancelAll() {
+        try {
+            WorkManager.getInstance(context).cancelAllWorkByTag("before_work")
+            WorkManager.getInstance(context).cancelAllWorkByTag("today_work")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

@@ -11,7 +11,7 @@
     <string name="selected_date">Дата: %1$s</string>
     <string name="days_suffix">дн.</string>
     <string name="average_cycle_label">Средний цикл</string>
-    <string name="json_import_title">Импорт из JSON</string>
+    <string name="file_import_title">Импорт из файла</string>
     <string name="json_export_title">Экспорт в JSON</string>
     <string name="csv_export_title">Экспорт в CSV</string>
     <string name="menu_title">Меню</string>
@@ -55,4 +55,16 @@
     <string name="select_period_range">Выберите даты начала и конца</string>
     <string name="period_duration_format">Длительность: %d дн.</string>
     <string name="cycle_duration_format">Цикл: %d дн.</string>
+    <string name="import_from_file">Импорт из файла</string>
+    <string name="import_from_text">Вставить текст</string>
+    <string name="import_dialog_title">Импорт из текста</string>
+    <string name="import_dialog_hint">Вставьте строки с датами.\nКаждая запись начинается с новой строки.\nКонец месячных (опционально) разделяется запятой. </string>
+    <string name="import_dialog_placeholder">2024-01-01, 2024-01-05\n01.02.2024,07.02.2024\n2024-03-05</string>
+    <string name="button_import">Импортировать</string>
+    <string name="button_cancel">Отмена</string>
+    <string name="data_management">Управление данными</string>
+    <string name="clear_history">Очистить всю историю</string>
+    <string name="delete_all_title">Удалить все данные?</string>
+    <string name="delete_all_confirmation">Все записи будут безвозвратно удалены. Мы рекомендуем сначала сделать экспорт.</string>
+    <string name="button_delete_confirm">Удалить всё</string>
 </resources>

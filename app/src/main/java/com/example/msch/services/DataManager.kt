@@ -5,10 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.example.msch.entities.PeriodRecord
-import com.example.msch.services.DataSerializer
 import java.io.File
 
 class DataManager(private val context: Context) {
+
     fun shareFile(content: String, fileName: String) {
         try {
             val cachePath = File(context.cacheDir, "exports")
@@ -29,11 +29,18 @@ class DataManager(private val context: Context) {
             e.printStackTrace()
         }
     }
+
     fun readImportFile(uri: Uri, onRecordsLoaded: (List<PeriodRecord>) -> Unit) {
         try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                val content = inputStream.bufferedReader().use { it.readText() }
-                val records = DataSerializer.fromJson(content)
+                val content = inputStream.bufferedReader().use { it.readText() }.trim()
+
+                val records = if (content.startsWith("[") || content.startsWith("{")) {
+                    DataSerializer.fromJson(content)
+                } else {
+                    DataSerializer.fromCsv(content)
+                }
+
                 if (records.isNotEmpty()) {
                     onRecordsLoaded(records)
                 }

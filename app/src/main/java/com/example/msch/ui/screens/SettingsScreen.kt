@@ -17,15 +17,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.room3.vo.Warning
 import com.example.msch.R
 import com.example.msch.notifications.NotificationScheduler
 import com.example.msch.services.SettingsManager
 import com.example.msch.ui.components.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Warning
 
 @Composable
-fun SettingsScreen(settingsManager: SettingsManager, nextDateMillis: Long, onThemeChanged: () -> Unit) {
+fun SettingsScreen(
+    settingsManager: SettingsManager,
+    nextDateMillis: Long,
+    onThemeChanged: () -> Unit,
+    onDeleteAll: () -> Unit
+) {
     val context = LocalContext.current
     val scheduler = remember { NotificationScheduler(context) }
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     var cycleLength by remember { mutableIntStateOf(settingsManager.defaultCycleLength) }
     var periodLength by remember { mutableIntStateOf(settingsManager.defaultPeriodLength) }
@@ -120,5 +131,59 @@ fun SettingsScreen(settingsManager: SettingsManager, nextDateMillis: Long, onThe
             HorizontalDivider(Modifier.padding(vertical = 4.dp), 0.5.dp)
             LanguageSelector(settingsManager)
         }
+
+        Spacer(Modifier.height(24.dp))
+
+        SettingsSection(title = stringResource(R.string.data_management)) {
+            TextButton(
+                onClick = { showDeleteDialog = true },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DeleteForever,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(stringResource(R.string.clear_history))
+            }
+        }
+
+        Spacer(Modifier.height(32.dp))
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            icon = {
+                Icon(
+                    Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = { Text(stringResource(R.string.delete_all_title)) },
+            text = { Text(stringResource(R.string.delete_all_confirmation)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDeleteAll()
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(R.string.button_delete_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(stringResource(R.string.button_cancel))
+                }
+            }
+        )
     }
 }
