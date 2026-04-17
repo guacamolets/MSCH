@@ -37,7 +37,7 @@ fun HistoryScreen(
     Box(modifier = modifier.fillMaxSize()) {
         if (sortedRecords.isEmpty()) {
             Text(
-                text = stringResource(R.string.no_history_yet),
+                text = stringResource(R.string.no_data),
                 modifier = Modifier.align(Alignment.Center),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -71,7 +71,6 @@ fun HistoryScreen(
                             isAddingNewRecord = false
                         }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }

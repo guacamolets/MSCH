@@ -49,7 +49,7 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="lang_system">System language</string>
-    <string name="no_history_yet">No records yet. Tap + to add one</string>
+    <string name="no_data">No records yet. Tap + to add one</string>
     <string name="period_active">Period is active</string>
     <string name="end_period_button">End period</string>
     <string name="select_period_range">Select start and end dates</string>
@@ -67,4 +67,19 @@
     <string name="delete_all_title">Delete all data?</string>
     <string name="delete_all_confirmation">All records will be permanently deleted. We recommend making an export first.</string>
     <string name="button_delete_confirm">Delete all</string>
+    <string name="cycle_stats_format">%1$d day cycle</string>
+    <string name="period_stats_format">Period: %1$d days</string>
+    <string name="cycle_variation_format">%1$s day variation</string>
+    <string name="period_variation_format">Period: %1$s days</string>
+    <string name="day_prefix">Day %1$d</string>
+    <string name="next_period_prefix">Next period: %1$s</string>
+    <string name="period_header_expected">Period in</string>
+    <string name="days_count_format">%1$d days</string>
+    <string name="current_day">cycle day %2$d</string>
+    <string name="stats_last">Last: %1$d days</string>
+    <string name="stats_range">Range: %1$s days</string>
+    <string name="label_cycle">Cycle</string>
+    <string name="label_periods">Period</string>
+    <string name="status_subtitle_format">Day: %1$d • Next period: %2$s</string>
+    <string name="stats_subtitle_format">Last: %1$d days • Range: %2$s days</string>
 </resources>

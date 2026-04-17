@@ -73,8 +73,6 @@ fun PeriodItem(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.DateRange,

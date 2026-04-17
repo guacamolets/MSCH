@@ -68,4 +68,40 @@ object CyclePredictor {
 
         return (diff / AppConfig.MILLIS_IN_DAY).toInt()
     }
+
+    fun getLastStats(records: List<PeriodRecord>): Pair<Int?, Int?> {
+        val sorted = records.filter { it.endDate != null }.sortedByDescending { it.startDate }
+        if (sorted.size < 2) return null to sorted.firstOrNull()?.let {
+            ((it.endDate!! - it.startDate) / AppConfig.MILLIS_IN_DAY).toInt() + 1
+        }
+
+        val lastRecord = sorted[0]
+        val prevRecord = sorted[1]
+
+        val lastPeriodLen = ((lastRecord.endDate!! - lastRecord.startDate) / AppConfig.MILLIS_IN_DAY).toInt() + 1
+        val lastCycleLen = ((lastRecord.startDate - prevRecord.startDate) / AppConfig.MILLIS_IN_DAY).toInt()
+
+        return lastCycleLen to lastPeriodLen
+    }
+
+    fun getVariations(records: List<PeriodRecord>, defaultCycle: Int): Pair<String, String> {
+        val completed = records.filter { it.endDate != null }.sortedBy { it.startDate }
+        if (completed.isEmpty()) return "--" to "--"
+
+        val periodLengths = completed.map {
+            ((it.endDate!! - it.startDate) / AppConfig.MILLIS_IN_DAY).toInt() + 1
+        }
+
+        val cycleLengths = mutableListOf<Int>()
+        for (i in 0 until completed.size - 1) {
+            val len = ((completed[i+1].startDate - completed[i].startDate) / AppConfig.MILLIS_IN_DAY).toInt()
+            cycleLengths.add(len)
+        }
+
+        val periodVar = "${periodLengths.minOrNull() ?: 0}–${periodLengths.maxOrNull() ?: 0}"
+        val cycleVar = if (cycleLengths.isEmpty()) "$defaultCycle"
+        else "${cycleLengths.minOrNull()}–${cycleLengths.maxOrNull()}"
+
+        return cycleVar to periodVar
+    }
 }
