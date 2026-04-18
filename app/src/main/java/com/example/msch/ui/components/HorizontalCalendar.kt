@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -149,13 +150,14 @@ fun DayItem(day: CalendarDay, isSelected: Boolean, onDateClick: () -> Unit) {
         modifier = Modifier
             .size(60.dp)
             .clip(CircleShape)
+            .alpha(if (day.timeInMillis < System.currentTimeMillis() && !day.isToday) 0.5f else 1f)
             .background(backgroundColor)
             .clickable { onDateClick() }
             .then(
-                if (isSelected) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                else if (day.isToday && day.status == DayStatus.None)
-                    Modifier.border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                else Modifier
+                if (isSelected)
+                    Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                else
+                    Modifier
             )
     ) {
         Text(
