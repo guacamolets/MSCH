@@ -66,7 +66,7 @@ object CyclePredictor {
     fun getDaysUntilNext(nextDateMillis: Long): Int {
         val diff = nextDateMillis - System.currentTimeMillis()
 
-        return (diff / AppConfig.MILLIS_IN_DAY).toInt()
+        return kotlin.math.ceil(diff.toDouble() / AppConfig.MILLIS_IN_DAY).toInt()
     }
 
     fun getLastStats(records: List<PeriodRecord>): Pair<Int?, Int?> {
