@@ -27,7 +27,7 @@
 
     <string name="manage_record_title">Управление записью</string>
     <string name="selected_date">Дата: %1$s</string>
-    <string name="period_duration_format">Длительность: %d дн.</string>
+    <string name="period_duration_format">%d дн.</string>
     <string name="cycle_duration_format">Цикл: %d дн.</string>
     <string name="select_period_range">Выберите даты начала и конца</string>
     <string name="history_empty">Здесь появится ваша история</string>

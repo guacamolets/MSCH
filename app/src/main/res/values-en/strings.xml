@@ -27,7 +27,7 @@
 
     <string name="manage_record_title">Manage record</string>
     <string name="selected_date">Date: %1$s</string>
-    <string name="period_duration_format">Duration: %d days</string>
+    <string name="period_duration_format">%d days</string>
     <string name="cycle_duration_format">Cycle: %d days</string>
     <string name="select_period_range">Select start and end dates</string>
     <string name="history_empty">Your history will appear here</string>
