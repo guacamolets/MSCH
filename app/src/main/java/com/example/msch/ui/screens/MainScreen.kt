@@ -1,6 +1,7 @@
 package com.example.msch.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -8,6 +9,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Opacity
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +24,7 @@ import com.example.msch.logic.AppConfig
 import com.example.msch.logic.CyclePredictor
 import com.example.msch.services.SettingsManager
 import com.example.msch.ui.components.HorizontalCalendar
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -47,9 +50,6 @@ fun MainScreen(
     val nextDateStr = remember(nextDateMillis) {
         dateFormatter.format(Date(nextDateMillis))
     }
-    val variations = remember(records, settingsManager.defaultCycleLength) {
-        CyclePredictor.getVariations(records, settingsManager.defaultCycleLength)
-    }
 
     val currentDay = remember(records) { CyclePredictor.getCurrentDay(records) }
 
@@ -62,7 +62,12 @@ fun MainScreen(
     val sortedRecords = remember(records) { records.sortedByDescending { it.startDate } }
 
     val isOvulationSelected = remember(selectedDate, sortedRecords, nextDateMillis) {
-        CyclePredictor.isOvulationDay(selectedDate, sortedRecords, nextDateMillis, settingsManager.defaultCycleLength)
+        CyclePredictor.isOvulationDay(
+            selectedDate,
+            sortedRecords,
+            nextDateMillis,
+            settingsManager.defaultCycleLength
+        )
     }
 
     val activeRecord = remember(records) {
@@ -71,139 +76,170 @@ fun MainScreen(
         }
     }
 
-    Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(16.dp))
+    val initialIndex = 5000
+    val listState = rememberLazyListState(initialIndex - 3)
+    val coroutineScope = rememberCoroutineScope()
+    val today = remember { CyclePredictor.toStartOfDay() }
 
-        HorizontalCalendar(
-            records = records,
-            nextDateMillis = nextDateMillis,
-            settingsManager = settingsManager,
-            selectedDateMillis = selectedDate,
-            onDateSelected = { selectedDate = it }
-        )
+    val showReturnButton by remember {
+        derivedStateOf {
+            selectedDate != today || listState.firstVisibleItemIndex != (initialIndex - 3)
+        }
+    }
 
-        Spacer(Modifier.height(32.dp))
-
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth().height(100.dp)
+            modifier = modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (activeRecord != null) {
-                Text(
-                    text = stringResource(R.string.period_active),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Text(
-                    text = when {
-                        isOvulationSelected -> stringResource(R.string.ovulation_day)
-                        daysUntil > 0 -> stringResource(R.string.period_header_expected)
-                        daysUntil == 0 -> stringResource(R.string.period_soon)
-                        else -> stringResource(R.string.period_overdue)
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (isOvulationSelected)
-                        MaterialTheme.colorScheme.secondary
-                    else
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Spacer(Modifier.height(16.dp))
 
-                Spacer(Modifier.height(12.dp))
+            HorizontalCalendar(
+                records = records,
+                listState = listState,
+                nextDateMillis = nextDateMillis,
+                settingsManager = settingsManager,
+                selectedDateMillis = selectedDate,
+                onDateSelected = { selectedDate = it }
+            )
 
-                Box(
-                    modifier = Modifier.heightIn(min = 40.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    when {
-                        daysUntil > 0 && !isOvulationSelected -> {
-                            Text(
-                                text = stringResource(R.string.days_count_format, daysUntil),
-                                style = MaterialTheme.typography.displaySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+            Spacer(Modifier.height(32.dp))
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth().height(100.dp)
+            ) {
+                if (activeRecord != null) {
+                    Text(
+                        text = stringResource(R.string.period_active),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Text(
+                        text = when {
+                            isOvulationSelected -> stringResource(R.string.ovulation_day)
+                            daysUntil > 0 -> stringResource(R.string.period_header_expected)
+                            daysUntil == 0 -> stringResource(R.string.period_soon)
+                            else -> stringResource(R.string.period_overdue)
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (isOvulationSelected)
+                            MaterialTheme.colorScheme.secondary
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    Box(
+                        modifier = Modifier.heightIn(min = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        when {
+                            daysUntil > 0 && !isOvulationSelected -> {
+                                Text(
+                                    text = stringResource(R.string.days_count_format, daysUntil),
+                                    style = MaterialTheme.typography.displaySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
                 }
             }
+
+            Spacer(Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    if (activeRecord == null) onInsert(selectedDate)
+                    else onEndPeriod(selectedDate)
+                },
+                modifier = Modifier.widthIn(min = 200.dp).height(56.dp).padding(horizontal = 32.dp),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (activeRecord == null)
+                        MaterialTheme.colorScheme.primaryContainer
+                    else
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = if (activeRecord == null)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            ) {
+                Icon(
+                    imageVector = if (activeRecord == null) Icons.Default.Add else Icons.Default.Check,
+                    contentDescription = null
+                )
+                Spacer(Modifier.width(8.dp))
+
+                Text(
+                    text = when {
+                        activeRecord != null -> stringResource(R.string.end_period_button)
+                        else -> stringResource(R.string.log_period_button)
+                    }
+                )
+            }
+
+            Spacer(Modifier.height(48.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                InfoBlock(
+                    primaryLabel = stringResource(R.string.label_сurrent_cycle),
+                    secondaryLabel = currentDay?.let {
+                        stringResource(R.string.status_subtitle_format, it, nextDateStr)
+                    } ?: stringResource(R.string.no_data),
+                    icon = Icons.Default.Event
+                )
+
+                InfoBlock(
+                    primaryLabel = stringResource(R.string.label_cycle),
+                    secondaryLabel = lastStats.first?.let {
+                        val isNormal = CyclePredictor.isLengthNormal(it, isCycle = true)
+                        stringResource(
+                            if (isNormal) R.string.stats_status_normal else R.string.stats_status_abnormal,
+                            it
+                        )
+                    } ?: stringResource(R.string.no_data),
+                    icon = Icons.Default.History
+                )
+
+                InfoBlock(
+                    primaryLabel = stringResource(R.string.label_periods),
+                    secondaryLabel = lastStats.second?.let {
+                        val isNormal = CyclePredictor.isLengthNormal(it, isCycle = false)
+                        stringResource(
+                            if (isNormal) R.string.stats_status_normal else R.string.stats_status_abnormal,
+                            it
+                        )
+                    } ?: stringResource(R.string.no_data),
+                    icon = Icons.Default.Opacity
+                )
+            }
         }
 
-        Spacer(Modifier.height(24.dp))
-
-        Button(
-            onClick = {
-                if (activeRecord == null) onInsert(selectedDate)
-                else onEndPeriod(selectedDate)
-            },
-            modifier = Modifier.widthIn(min = 200.dp).height(56.dp).padding(horizontal = 32.dp),
-            shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (activeRecord == null)
-                    MaterialTheme.colorScheme.primaryContainer
-                else
-                    MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = if (activeRecord == null)
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                else
-                    MaterialTheme.colorScheme.onTertiaryContainer
-            )
-        ) {
-            Icon(
-                imageVector = if (activeRecord == null) Icons.Default.Add else Icons.Default.Check,
-                contentDescription = null
-            )
-            Spacer(Modifier.width(8.dp))
-
-            Text(
-                text = when {
-                    activeRecord != null -> stringResource(R.string.end_period_button)
-                    else -> stringResource(R.string.log_period_button)
-                }
-            )
-        }
-
-        Spacer(Modifier.height(48.dp))
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            InfoBlock(
-                primaryLabel = stringResource(R.string.label_сurrent_cycle),
-                secondaryLabel = currentDay?.let {
-                    stringResource(R.string.status_subtitle_format, it, nextDateStr)
-                } ?: stringResource(R.string.no_data),
-                icon = Icons.Default.Event
-            )
-
-            InfoBlock(
-                primaryLabel = stringResource(R.string.label_cycle),
-                secondaryLabel = lastStats.first?.let {
-                    val isNormal = CyclePredictor.isLengthNormal(it, isCycle = true)
-                    stringResource(
-                        if (isNormal) R.string.stats_status_normal else R.string.stats_status_abnormal,
-                        it
-                    )
-                } ?: stringResource(R.string.no_data),
-                icon = Icons.Default.History
-            )
-
-            InfoBlock(
-                primaryLabel = stringResource(R.string.label_periods),
-                secondaryLabel = lastStats.second?.let {
-                    val isNormal = CyclePredictor.isLengthNormal(it, isCycle = false)
-                    stringResource(
-                        if (isNormal) R.string.stats_status_normal else R.string.stats_status_abnormal,
-                        it
-                    )
-                } ?: stringResource(R.string.no_data),
-                icon = Icons.Default.Opacity
-            )
+        if (showReturnButton) {
+            SmallFloatingActionButton(
+                onClick = {
+                    selectedDate = today
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(initialIndex - 3)
+                    }
+                },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                shape = CircleShape
+            ) {
+                Icon(Icons.Default.Today, contentDescription = null)
+            }
         }
     }
 }

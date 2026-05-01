@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -29,6 +30,7 @@ import java.util.*
 @Composable
 fun HorizontalCalendar(
     records: List<PeriodRecord>,
+    listState: LazyListState,
     nextDateMillis: Long,
     settingsManager: SettingsManager,
     selectedDateMillis: Long,
@@ -37,7 +39,6 @@ fun HorizontalCalendar(
 ) {
     val totalDays = 10000
     val initialIndex = 5000
-    val listState = rememberLazyListState(initialIndex - 3)
 
     val baseTime = remember {
         Calendar.getInstance().apply {
