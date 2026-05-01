@@ -22,8 +22,8 @@
     <string name="log_period_on_date_format">Отметить %1$s</string>
 
     <string name="label_сurrent_cycle">Текущий цикл</string>
-    <string name="label_cycle">Прошлый цикл</string>
-    <string name="label_periods">Прошлые месячные</string>
+    <string name="label_cycle">Предыдущий цикл</string>
+    <string name="label_periods">Предыдущие месячные</string>
     <string name="status_subtitle_format">День: %1$d&#160;&#160;•&#160;&#160;Месячные: %2$s</string>
     <string name="stats_status_normal">Длина: %1$d дн.&#160;&#160;•&#160;&#160;Норма</string>
     <string name="stats_status_abnormal">Длина: %1$d дн.&#160;&#160;•&#160;&#160;Не норма</string>

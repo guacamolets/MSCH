@@ -81,19 +81,19 @@ private fun calculateDayData(
     settingsManager: SettingsManager
 ): CalendarDay {
     val isToday = android.text.format.DateUtils.isToday(time)
-    val record = records.lastOrNull { it.startDate <= time }
-
-    val isPeriod = record != null && run {
-        val start = record.startDate
+    val record = records.find { rec ->
+        val start = rec.startDate
         val defaultEnd = start + (settingsManager.defaultPeriodLength * AppConfig.MILLIS_IN_DAY)
-        val actualEnd = record.endDate ?: defaultEnd
+        val actualEnd = rec.endDate ?: defaultEnd
 
-        if (record.endDate == null) {
+        if (rec.endDate == null) {
             time in start..<actualEnd
         } else {
             time in start..actualEnd
         }
     }
+
+    val isPeriod = record != null
 
     val cleanNextDate = CyclePredictor.toStartOfDay(nextDateMillis)
     val isPrediction = !isPeriod && time >= cleanNextDate &&

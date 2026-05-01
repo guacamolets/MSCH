@@ -112,6 +112,7 @@ fun SegmentedCycleBar(
     modifier: Modifier = Modifier
 ) {
     val activeColor = Color(0xFFFF5252)
+    val ovulationColor = Color(0xFF4DB6AC)
     val inactiveColor = MaterialTheme.colorScheme.outlineVariant
 
     Canvas(modifier = modifier) {
@@ -121,7 +122,11 @@ fun SegmentedCycleBar(
 
         for (i in 0 until displayDays) {
             val startX = i * (dayWidth + gap)
-            val color = if (i < periodDays) activeColor else inactiveColor
+            val color = when {
+                i < periodDays -> activeColor
+                i == totalDays - 15 -> ovulationColor
+                else -> inactiveColor
+            }
 
             drawRoundRect(
                 color = color,
