@@ -10,6 +10,7 @@
     <string name="back">Back</string>
 
     <string name="period_header_expected">Period in</string>
+    <string name="ovulation_day">Ovulation Day</string>
     <string name="days_count_format">%1$d days</string>
     <string name="period_active">Period is active</string>
     <string name="period_soon">Cycle starts soon</string>

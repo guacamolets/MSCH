@@ -34,14 +34,7 @@ fun MainScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedDate by remember {
-        mutableLongStateOf(
-            Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.timeInMillis
-        )
+        mutableLongStateOf(CyclePredictor.toStartOfDay())
     }
 
     val now = System.currentTimeMillis()
@@ -66,6 +59,12 @@ fun MainScreen(
     }
     val lastStats = remember(records) { CyclePredictor.getLastStats(records) }
 
+    val sortedRecords = remember(records) { records.sortedByDescending { it.startDate } }
+
+    val isOvulationSelected = remember(selectedDate, sortedRecords, nextDateMillis) {
+        CyclePredictor.isOvulationDay(selectedDate, sortedRecords, nextDateMillis, settingsManager.defaultCycleLength)
+    }
+
     val activeRecord = remember(records) {
         records.maxByOrNull { it.startDate }?.takeIf {
             it.endDate == null && (now - it.startDate) < AppConfig.AUTO_CLOSE_DAYS * AppConfig.MILLIS_IN_DAY
@@ -88,7 +87,13 @@ fun MainScreen(
 
         Spacer(Modifier.height(32.dp))
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+        ) {
             if (activeRecord != null) {
                 Text(
                     text = stringResource(R.string.period_active),
@@ -98,23 +103,34 @@ fun MainScreen(
             } else {
                 Text(
                     text = when {
+                        isOvulationSelected -> stringResource(R.string.ovulation_day)
                         daysUntil > 0 -> stringResource(R.string.period_header_expected)
                         daysUntil == 0 -> stringResource(R.string.period_soon)
                         else -> stringResource(R.string.period_overdue)
                     },
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isOvulationSelected)
+                        MaterialTheme.colorScheme.secondary
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(Modifier.height(12.dp))
 
-                if (daysUntil > 0) {
-                    Text(
-                        text = stringResource(R.string.days_count_format, daysUntil),
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                Box(
+                    modifier = Modifier.heightIn(min = 40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when {
+                        daysUntil > 0 && !isOvulationSelected -> {
+                            Text(
+                                text = stringResource(R.string.days_count_format, daysUntil),
+                                style = MaterialTheme.typography.displaySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -160,7 +176,7 @@ fun MainScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             InfoBlock(
-                primaryLabel = dateFormatter.format(Date()),
+                primaryLabel = dateFormatter.format(selectedDate),
                 secondaryLabel = currentDaySelected?.let {
                     stringResource(R.string.status_subtitle_format, it, nextDateStr)
                 } ?: stringResource(R.string.no_data),

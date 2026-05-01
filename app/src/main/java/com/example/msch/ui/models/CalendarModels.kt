@@ -11,5 +11,5 @@ data class CalendarDay(
 )
 
 enum class DayStatus {
-    None, Period, Prediction
+    None, Period, Prediction, Ovulation
 }

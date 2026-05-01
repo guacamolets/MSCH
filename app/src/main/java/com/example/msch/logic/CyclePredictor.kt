@@ -3,6 +3,8 @@ package com.example.msch.logic
 import com.example.msch.entities.PeriodRecord
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 object CyclePredictor {
     private fun getRecordDuration(record: PeriodRecord, defaultLength: Int): Long {
@@ -23,12 +25,13 @@ object CyclePredictor {
         val intervals = mutableListOf<Long>()
 
         for (i in 0 until limitedRecords.size - 1) {
-            val diff = limitedRecords[i].startDate - limitedRecords[i + 1].startDate
+            val diff = toStartOfDay(limitedRecords[i].startDate) - toStartOfDay(limitedRecords[i + 1].startDate)
             intervals.add(diff)
         }
 
-        val averageInterval = intervals.average().toLong()
-        return records.first().startDate + if (averageInterval > 0) averageInterval else cycleMillis
+        val averageInterval = intervals.average().roundToLong()
+        val result = records.first().startDate + if (averageInterval > 0) averageInterval else cycleMillis
+        return toStartOfDay(result)
     }
 
     fun calculateAverageCycle(records: List<PeriodRecord>, defaultCycleLength: Int): Int {
@@ -38,11 +41,11 @@ object CyclePredictor {
         val durations = mutableListOf<Long>()
 
         for (i in 0 until limitedRecords.size - 1) {
-            val diff = limitedRecords[i].startDate - limitedRecords[i + 1].startDate
+            val diff = toStartOfDay(limitedRecords[i].startDate) - toStartOfDay(limitedRecords[i + 1].startDate)
             durations.add(diff / AppConfig.MILLIS_IN_DAY)
         }
 
-        return if (durations.isNotEmpty()) durations.average().toInt() else defaultCycleLength
+        return if (durations.isNotEmpty()) durations.average().roundToInt() else defaultCycleLength
     }
 
     fun calculateAveragePeriod(records: List<PeriodRecord>, defaultLength: Int): Int {
@@ -52,7 +55,7 @@ object CyclePredictor {
             getRecordDuration(record, defaultLength) / AppConfig.MILLIS_IN_DAY
         }
 
-        return durations.average().toInt()
+        return durations.average().roundToInt()
     }
 
     fun getLastStats(records: List<PeriodRecord>): Pair<Int?, Int?> {
@@ -92,21 +95,10 @@ object CyclePredictor {
     }
 
     fun getDaysUntilTarget(nextDateMillis: Long, targetDateMillis: Long): Int {
-        val next = Calendar.getInstance().apply {
-            timeInMillis = nextDateMillis
-            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-        }
-
-        val target = Calendar.getInstance().apply {
-            timeInMillis = targetDateMillis
-            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-        }
-
-        val diffMillis = next.timeInMillis - target.timeInMillis
-
-        return (diffMillis / AppConfig.MILLIS_IN_DAY).toInt()
+        val next = toStartOfDay(nextDateMillis)
+        val target = toStartOfDay(targetDateMillis)
+        val diff = next - target
+        return (diff / AppConfig.MILLIS_IN_DAY).toInt()
     }
 
     fun getDayOfCycleForDate(records: List<PeriodRecord>, targetDateMillis: Long): Int? {
@@ -120,5 +112,44 @@ object CyclePredictor {
         val day = (diff / AppConfig.MILLIS_IN_DAY).toInt() + 1
 
         return if (day in 1..45) day else null
+    }
+
+    fun getOvulationDate(nextCycleStart: Long): Long {
+        return toStartOfDay(nextCycleStart) - (15 * AppConfig.MILLIS_IN_DAY)
+    }
+
+    fun isOvulationDay(
+        dateMillis: Long,
+        records: List<PeriodRecord>,
+        nextDateMillis: Long,
+        defaultCycleLength: Int
+    ): Boolean {
+        val targetDay = toStartOfDay(dateMillis)
+        val nextDay = toStartOfDay(nextDateMillis)
+        val sorted = records.sortedByDescending { it.startDate }
+
+        val historicalMatch = sorted.indices.any { i ->
+            val nextStart = if (i == 0) nextDay else sorted[i - 1].startDate
+            targetDay == getOvulationDate(nextStart)
+        }
+        if (historicalMatch) return true
+
+        val cycleLength = calculateAverageCycle(records, defaultCycleLength)
+        val futureCycleStart = nextDay + (cycleLength * AppConfig.MILLIS_IN_DAY)
+        if (targetDay == getOvulationDate(futureCycleStart)) {
+            return true
+        }
+
+        return false
+    }
+
+    fun toStartOfDay(millis: Long = System.currentTimeMillis()): Long {
+        return Calendar.getInstance().apply {
+            timeInMillis = millis
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
     }
 }

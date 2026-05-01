@@ -10,6 +10,7 @@
     <string name="back">Назад</string>
 
     <string name="period_header_expected">Месячные через</string>
+    <string name="ovulation_day">День овуляции</string>
     <string name="days_count_format">%1$d дн.</string>
     <string name="period_active">Идут месячные</string>
     <string name="period_soon">Цикл начнется совсем скоро</string>

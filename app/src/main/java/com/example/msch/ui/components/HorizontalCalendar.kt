@@ -21,6 +21,7 @@ import com.example.msch.ui.models.CalendarDay
 import com.example.msch.ui.models.DayStatus
 import com.example.msch.entities.PeriodRecord
 import com.example.msch.logic.AppConfig
+import com.example.msch.logic.CyclePredictor
 import com.example.msch.services.SettingsManager
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,7 +38,6 @@ fun HorizontalCalendar(
     val totalDays = 10000
     val initialIndex = 5000
     val listState = rememberLazyListState(initialIndex - 3)
-    val sortedRecords = remember(records) { records.sortedBy { it.startDate } }
 
     val baseTime = remember {
         Calendar.getInstance().apply {
@@ -56,11 +56,12 @@ fun HorizontalCalendar(
     ) {
         items(count = totalDays, key = { it }) { index ->
             val time = remember(index) {
-                baseTime + (index - initialIndex) * AppConfig.MILLIS_IN_DAY
+                val rawTime = baseTime + (index - initialIndex) * AppConfig.MILLIS_IN_DAY
+                CyclePredictor.toStartOfDay(rawTime)
             }
             val date = remember(time) { Date(time) }
-            val dayData = remember(time, sortedRecords, nextDateMillis) {
-                calculateDayData(time, date, sortedRecords, nextDateMillis, settingsManager)
+            val dayData = remember(time, records, nextDateMillis) {
+                calculateDayData(time, date, records, nextDateMillis, settingsManager)
             }
 
             DayItem(
@@ -75,18 +76,12 @@ fun HorizontalCalendar(
 private fun calculateDayData(
     time: Long,
     date: Date,
-    sortedRecords: List<PeriodRecord>,
+    records: List<PeriodRecord>,
     nextDateMillis: Long,
     settingsManager: SettingsManager
 ): CalendarDay {
     val isToday = android.text.format.DateUtils.isToday(time)
-    val now = System.currentTimeMillis()
-    val record = sortedRecords.lastOrNull { it.startDate <= time }
-
-    val cleanNextDate = Calendar.getInstance().apply {
-        timeInMillis = nextDateMillis
-        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
+    val record = records.lastOrNull { it.startDate <= time }
 
     val isPeriod = record != null && run {
         val start = record.startDate
@@ -100,20 +95,20 @@ private fun calculateDayData(
         }
     }
 
+    val cleanNextDate = CyclePredictor.toStartOfDay(nextDateMillis)
     val isPrediction = !isPeriod && time >= cleanNextDate &&
             time < cleanNextDate + (settingsManager.defaultPeriodLength * AppConfig.MILLIS_IN_DAY)
 
+    val isOvulation = CyclePredictor.isOvulationDay(time, records, cleanNextDate, settingsManager.defaultCycleLength)
+
     val status = when {
         isPeriod -> DayStatus.Period
+        isOvulation -> DayStatus.Ovulation
         isPrediction -> DayStatus.Prediction
         else -> DayStatus.None
     }
 
-    val referenceDate = if (status == DayStatus.Prediction) cleanNextDate else record?.startDate
-    val dayOfCycle = referenceDate?.let {
-        val diff = (time - it) / AppConfig.MILLIS_IN_DAY
-        if (diff in 0..45) (diff + 1).toInt() else null
-    }
+    val dayOfCycle = CyclePredictor.getDayOfCycleForDate(records, time)
 
     return CalendarDay(
         date = date,
@@ -132,6 +127,7 @@ fun DayItem(day: CalendarDay, isSelected: Boolean, onDateClick: () -> Unit) {
     val backgroundColor = when (day.status) {
         DayStatus.Period -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
         DayStatus.Prediction -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+        DayStatus.Ovulation -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)
         else -> if (day.isToday) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
         else Color.Transparent
     }
@@ -139,6 +135,7 @@ fun DayItem(day: CalendarDay, isSelected: Boolean, onDateClick: () -> Unit) {
     val contentColor = when (day.status) {
         DayStatus.Period -> MaterialTheme.colorScheme.onErrorContainer
         DayStatus.Prediction -> MaterialTheme.colorScheme.onTertiaryContainer
+        DayStatus.Ovulation -> MaterialTheme.colorScheme.onSecondaryContainer
         else -> if (day.isToday) MaterialTheme.colorScheme.onPrimaryContainer
         else MaterialTheme.colorScheme.onSurface
     }
