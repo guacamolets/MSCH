@@ -1,5 +1,6 @@
 package com.example.msch.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -10,9 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.Delete
 import com.example.msch.R
 import com.example.msch.entities.PeriodRecord
 import com.example.msch.logic.AppConfig
@@ -20,7 +21,6 @@ import com.example.msch.logic.CyclePredictor.calculateAverageCycle
 import com.example.msch.logic.CyclePredictor.getOvulationDate
 import com.example.msch.services.SettingsManager
 import com.example.msch.ui.components.PeriodItem
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +51,7 @@ fun HistoryScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                itemsIndexed(sortedRecords) { index, record ->
+                itemsIndexed(items = sortedRecords, key = { _, record -> record.id }) { index, record ->
                     val cycleLength = remember(sortedRecords) {
                         if (index > 0) {
                             val diff = sortedRecords[index - 1].startDate - record.startDate
@@ -82,22 +82,57 @@ fun HistoryScreen(
                         ((getOvulationDate(nextCycleStart) - record.startDate) / AppConfig.MILLIS_IN_DAY).toInt()
                     }
 
-                    PeriodItem(
-                        record = record,
-                        cycleLength = cycleLength,
-                        periodDuration = periodDuration,
-                        ovulationDay = ovulationDay,
-                        onClick = {
-                            selectedRecord = record
-                            isAddingNewRecord = false
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { value ->
+                            if (value == SwipeToDismissBoxValue.EndToStart) {
+                                onDelete(record)
+                                true
+                            } else false
                         }
                     )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        enableDismissFromStartToEnd = false,
+                        backgroundContent = {
+                            val color = when (dismissState.targetValue) {
+                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                                else -> MaterialTheme.colorScheme.surface
+                            }
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(color, MaterialTheme.shapes.medium)
+                                    .padding(horizontal = 20.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    ) {
+                        PeriodItem(
+                            record = record,
+                            cycleLength = cycleLength,
+                            periodDuration = periodDuration,
+                            ovulationDay = ovulationDay,
+                            onClick = {
+                                selectedRecord = record
+                                isAddingNewRecord = false
+                                showDatePicker = true
+                            }
+                        )
+                    }
                 }
             }
         }
 
         FloatingActionButton(
             onClick = {
+                selectedRecord = null
                 isAddingNewRecord = true
                 showDatePicker = true
             },
@@ -137,20 +172,6 @@ fun HistoryScreen(
             }
         )
     }
-
-    selectedRecord?.let { record ->
-        if (!showDatePicker) {
-            RecordActionDialog(
-                record = record,
-                onDelete = {
-                    onDelete(record)
-                    selectedRecord = null
-                },
-                onEdit = { showDatePicker = true },
-                onDismiss = { selectedRecord = null }
-            )
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -188,26 +209,4 @@ fun HistoryDatePicker(
             modifier = Modifier.weight(1f)
         )
     }
-}
-
-@Composable
-fun RecordActionDialog(record: PeriodRecord, onDelete: () -> Unit, onEdit: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.manage_record_title)) },
-        text = {
-            val formattedDate = android.text.format.DateFormat
-                .getDateFormat(LocalContext.current)
-                .format(Date(record.startDate))
-            Text(text = stringResource(R.string.selected_date, formattedDate))
-        },
-        confirmButton = {
-            TextButton(onClick = onDelete) {
-                Text(stringResource(R.string.delete_button), color = MaterialTheme.colorScheme.error)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onEdit) { Text(stringResource(R.string.edit_button)) }
-        }
-    )
 }
