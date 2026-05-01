@@ -58,6 +58,15 @@ object CyclePredictor {
         return durations.average().roundToInt()
     }
 
+    fun getCurrentDay(records: List<PeriodRecord>): Int? {
+        if (records.isEmpty()) return null
+
+        val lastStart = records.first().startDate
+        val diff = System.currentTimeMillis() - lastStart
+
+        return (diff / AppConfig.MILLIS_IN_DAY).toInt() + 1
+    }
+
     fun getLastStats(records: List<PeriodRecord>): Pair<Int?, Int?> {
         val sorted = records.filter { it.endDate != null }.sortedByDescending { it.startDate }
         if (sorted.size < 2) return null to sorted.firstOrNull()?.let {
@@ -141,6 +150,14 @@ object CyclePredictor {
         }
 
         return false
+    }
+
+    fun isLengthNormal(value: Int, isCycle: Boolean): Boolean {
+        return if (isCycle) {
+            value in AppConfig.Thresholds.MIN_CYCLE_DAYS..AppConfig.Thresholds.MAX_CYCLE_DAYS
+        } else {
+            value in AppConfig.Thresholds.MIN_PERIOD_DAYS..AppConfig.Thresholds.MAX_PERIOD_DAYS
+        }
     }
 
     fun toStartOfDay(millis: Long = System.currentTimeMillis()): Long {

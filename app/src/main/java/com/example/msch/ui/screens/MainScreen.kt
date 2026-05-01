@@ -51,12 +51,12 @@ fun MainScreen(
         CyclePredictor.getVariations(records, settingsManager.defaultCycleLength)
     }
 
+    val currentDay = remember(records) { CyclePredictor.getCurrentDay(records) }
+
     val daysUntil = remember(nextDateMillis, selectedDate) {
         CyclePredictor.getDaysUntilTarget(nextDateMillis, selectedDate)
     }
-    val currentDaySelected = remember(records, selectedDate) {
-        CyclePredictor.getDayOfCycleForDate(records, selectedDate)
-    }
+
     val lastStats = remember(records) { CyclePredictor.getLastStats(records) }
 
     val sortedRecords = remember(records) { records.sortedByDescending { it.startDate } }
@@ -176,8 +176,8 @@ fun MainScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             InfoBlock(
-                primaryLabel = dateFormatter.format(selectedDate),
-                secondaryLabel = currentDaySelected?.let {
+                primaryLabel = stringResource(R.string.label_сurrent_cycle),
+                secondaryLabel = currentDay?.let {
                     stringResource(R.string.status_subtitle_format, it, nextDateStr)
                 } ?: stringResource(R.string.no_data),
                 icon = Icons.Default.Event
@@ -185,21 +185,25 @@ fun MainScreen(
 
             InfoBlock(
                 primaryLabel = stringResource(R.string.label_cycle),
-                secondaryLabel = stringResource(
-                    R.string.stats_subtitle_format,
-                    lastStats.first ?: 0,
-                    variations.first
-                ),
+                secondaryLabel = lastStats.first?.let {
+                    val isNormal = CyclePredictor.isLengthNormal(it, isCycle = true)
+                    stringResource(
+                        if (isNormal) R.string.stats_status_normal else R.string.stats_status_abnormal,
+                        it
+                    )
+                } ?: stringResource(R.string.no_data),
                 icon = Icons.Default.History
             )
 
             InfoBlock(
                 primaryLabel = stringResource(R.string.label_periods),
-                secondaryLabel = stringResource(
-                    R.string.stats_subtitle_format,
-                    lastStats.second ?: 0,
-                    variations.second
-                ),
+                secondaryLabel = lastStats.second?.let {
+                    val isNormal = CyclePredictor.isLengthNormal(it, isCycle = false)
+                    stringResource(
+                        if (isNormal) R.string.stats_status_normal else R.string.stats_status_abnormal,
+                        it
+                    )
+                } ?: stringResource(R.string.no_data),
                 icon = Icons.Default.Opacity
             )
         }

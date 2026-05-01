@@ -21,10 +21,12 @@
     <string name="end_period_button">Отметить конец</string>
     <string name="log_period_on_date_format">Отметить %1$s</string>
 
-    <string name="label_cycle">Цикл</string>
-    <string name="label_periods">Месячные</string>
-    <string name="status_subtitle_format">День: %1$d&#160;&#160;•&#160;&#160;След. месячные: %2$s</string>
-    <string name="stats_subtitle_format">Прошлый: %1$d дн.&#160;&#160;•&#160;&#160;Колебания: %2$s дн.</string>
+    <string name="label_сurrent_cycle">Текущий цикл</string>
+    <string name="label_cycle">Прошлый цикл</string>
+    <string name="label_periods">Прошлые месячные</string>
+    <string name="status_subtitle_format">День: %1$d&#160;&#160;•&#160;&#160;Месячные: %2$s</string>
+    <string name="stats_status_normal">Длина: %1$d дн.&#160;&#160;•&#160;&#160;Норма</string>
+    <string name="stats_status_abnormal">Длина: %1$d дн.&#160;&#160;•&#160;&#160;Не норма</string>
 
     <string name="manage_record_title">Управление записью</string>
     <string name="selected_date">Дата: %1$s</string>

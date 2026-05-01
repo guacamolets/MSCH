@@ -21,10 +21,12 @@
     <string name="end_period_button">End period</string>
     <string name="log_period_on_date_format">Log for %1$s</string>
 
-    <string name="label_cycle">Cycle</string>
-    <string name="label_periods">Period</string>
+    <string name="label_сurrent_cycle">Current cycle</string>
+    <string name="label_cycle">Last cycle</string>
+    <string name="label_periods">Last period</string>
     <string name="status_subtitle_format">Day: %1$d&#160;&#160;•&#160;&#160;Next period: %2$s</string>
-    <string name="stats_subtitle_format">Last: %1$d days&#160;&#160;•&#160;&#160;Range: %2$s days</string>
+    <string name="stats_status_normal">Length: %1$d days&#160;&#160;•&#160;&#160;Normal</string>
+    <string name="stats_status_abnormal">Length: %1$d days&#160;&#160;•&#160;&#160;Out of range</string>
 
     <string name="manage_record_title">Manage record</string>
     <string name="selected_date">Date: %1$s</string>
