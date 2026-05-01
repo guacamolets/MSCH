@@ -38,6 +38,7 @@ fun PeriodItem(
     record: PeriodRecord,
     cycleLength: Int?,
     periodDuration: Int?,
+    ovulationDay: Int,
     onClick: () -> Unit
 ) {
     val locale = LocalConfiguration.current.locales[0]
@@ -95,6 +96,7 @@ fun PeriodItem(
                     SegmentedCycleBar(
                         periodDays = periodDuration,
                         totalDays = cycleLength,
+                        ovulationDay = ovulationDay,
                         modifier = Modifier
                             .fillMaxWidth(fraction = (cycleLength.toFloat() / 40f).coerceAtMost(1f))
                             .height(8.dp)
@@ -109,6 +111,7 @@ fun PeriodItem(
 fun SegmentedCycleBar(
     periodDays: Int,
     totalDays: Int,
+    ovulationDay: Int,
     modifier: Modifier = Modifier
 ) {
     val activeColor = Color(0xFFFF5252)
@@ -124,7 +127,7 @@ fun SegmentedCycleBar(
             val startX = i * (dayWidth + gap)
             val color = when {
                 i < periodDays -> activeColor
-                i == totalDays - 15 -> ovulationColor
+                i == ovulationDay -> ovulationColor
                 else -> inactiveColor
             }
 

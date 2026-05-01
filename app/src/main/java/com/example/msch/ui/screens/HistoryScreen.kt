@@ -16,6 +16,9 @@ import androidx.compose.ui.unit.dp
 import com.example.msch.R
 import com.example.msch.entities.PeriodRecord
 import com.example.msch.logic.AppConfig
+import com.example.msch.logic.CyclePredictor.calculateAverageCycle
+import com.example.msch.logic.CyclePredictor.getOvulationDate
+import com.example.msch.services.SettingsManager
 import com.example.msch.ui.components.PeriodItem
 import java.util.Date
 
@@ -23,6 +26,7 @@ import java.util.Date
 @Composable
 fun HistoryScreen(
     records: List<PeriodRecord>,
+    settingsManager: SettingsManager,
     onInsert: (Long) -> Unit,
     onUpdate: (PeriodRecord) -> Unit,
     onDelete: (PeriodRecord) -> Unit,
@@ -49,10 +53,13 @@ fun HistoryScreen(
             ) {
                 itemsIndexed(sortedRecords) { index, record ->
                     val cycleLength = remember(sortedRecords) {
-                        if (index < sortedRecords.size - 1) {
-                            val diff = record.startDate - sortedRecords[index + 1].startDate
+                        if (index > 0) {
+                            val diff = sortedRecords[index - 1].startDate - record.startDate
                             (diff / AppConfig.MILLIS_IN_DAY).toInt()
-                        } else null
+                        } else {
+                            val diff = System.currentTimeMillis() - record.startDate
+                            (diff / AppConfig.MILLIS_IN_DAY).toInt() + 1
+                        }
                     }
 
                     val periodDuration = remember(record) {
@@ -62,10 +69,24 @@ fun HistoryScreen(
                         }
                     }
 
+                    val nextCycleStart = remember(sortedRecords, record) {
+                        if (index > 0) {
+                            sortedRecords[index - 1].startDate
+                        } else {
+                            val avg = calculateAverageCycle(records, settingsManager.defaultCycleLength)
+                            record.startDate + (avg * AppConfig.MILLIS_IN_DAY)
+                        }
+                    }
+
+                    val ovulationDay = remember(record, nextCycleStart) {
+                        ((getOvulationDate(nextCycleStart) - record.startDate) / AppConfig.MILLIS_IN_DAY).toInt()
+                    }
+
                     PeriodItem(
                         record = record,
                         cycleLength = cycleLength,
                         periodDuration = periodDuration,
+                        ovulationDay = ovulationDay,
                         onClick = {
                             selectedRecord = record
                             isAddingNewRecord = false

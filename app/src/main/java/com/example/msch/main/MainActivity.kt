@@ -162,6 +162,7 @@ fun AppNavigation(
         composable(Screen.History.route) {
             HistoryScreen(
                 records = records,
+                settingsManager = settingsManager,
                 onInsert = { viewModel.addRecord(it) },
                 onUpdate = { viewModel.updateRecord(it) },
                 onDelete = { viewModel.deleteRecord(it) }
