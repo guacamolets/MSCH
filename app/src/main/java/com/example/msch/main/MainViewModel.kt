@@ -63,8 +63,6 @@ class MainViewModel(private val dao: PeriodDao, private val settingsManager: Set
     fun clearAllHistory() {
         viewModelScope.launch(Dispatchers.IO) {
             dao.deleteAll()
-
-            //notificationScheduler.cancelAll()
         }
     }
 
@@ -75,7 +73,8 @@ class MainViewModel(private val dao: PeriodDao, private val settingsManager: Set
 
             val sanitized = applySanitization(allRecords)
 
-            sanitized.filterIndexed { index, record -> record != allRecords[index] }
+            sanitized
+                .filterIndexed { index, record -> record != allRecords[index] }
                 .forEach { updated -> dao.update(updated) }
         }
     }

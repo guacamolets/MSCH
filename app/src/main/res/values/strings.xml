@@ -16,7 +16,7 @@
     <string name="period_overdue">Задержка</string>
     <string name="no_data">Записей пока нет</string>
 
-    <string name="log_period_button">Отметить сегодня</string>
+    <string name="log_period_button">Отметить начало</string>
     <string name="end_period_button">Отметить конец</string>
     <string name="log_period_on_date_format">Отметить %1$s</string>
 
@@ -64,13 +64,12 @@
 
     <string name="data_management">Управление данными</string>
     <string name="import_from_file">Импорт из файла</string>
-    <string name="import_from_text">Вставить текст</string>
+    <string name="import_from_text">Импорт из текста</string>
     <string name="file_import_title">Импорт из файла</string>
     <string name="json_export_title">Экспорт в JSON</string>
     <string name="csv_export_title">Экспорт в CSV</string>
     <string name="import_dialog_title">Импорт из текста</string>
-    <string name="import_dialog_hint">Вставьте строки с датами.\nКаждая запись начинается с новой строки.\nКонец месячных (опционально) разделяется запятой.</string>
-    <string name="import_dialog_placeholder">2024-01-01,2024-01-05\n01.02.2024</string>
+    <string name="import_dialog_placeholder">2024–01–01,2024–01–05\n01.02.2024,05.02.2024\n01.03.2024\n2024–04–01</string>
     <string name="clear_history">Очистить всю историю</string>
     <string name="delete_all_title">Удалить все данные?</string>
     <string name="delete_all_confirmation">Все записи будут безвозвратно удалены. Рекомендуем сначала сделать экспорт.</string>

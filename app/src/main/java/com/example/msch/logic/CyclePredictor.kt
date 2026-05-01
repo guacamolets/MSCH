@@ -1,6 +1,7 @@
 package com.example.msch.logic
 
 import com.example.msch.entities.PeriodRecord
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 object CyclePredictor {
@@ -54,21 +55,6 @@ object CyclePredictor {
         return durations.average().toInt()
     }
 
-    fun getCurrentDay(records: List<PeriodRecord>): Int? {
-        if (records.isEmpty()) return null
-
-        val lastStart = records.first().startDate
-        val diff = System.currentTimeMillis() - lastStart
-
-        return (diff / AppConfig.MILLIS_IN_DAY).toInt() + 1
-    }
-
-    fun getDaysUntilNext(nextDateMillis: Long): Int {
-        val diff = nextDateMillis - System.currentTimeMillis()
-
-        return kotlin.math.ceil(diff.toDouble() / AppConfig.MILLIS_IN_DAY).toInt()
-    }
-
     fun getLastStats(records: List<PeriodRecord>): Pair<Int?, Int?> {
         val sorted = records.filter { it.endDate != null }.sortedByDescending { it.startDate }
         if (sorted.size < 2) return null to sorted.firstOrNull()?.let {
@@ -103,5 +89,36 @@ object CyclePredictor {
         else "${cycleLengths.minOrNull()}–${cycleLengths.maxOrNull()}"
 
         return cycleVar to periodVar
+    }
+
+    fun getDaysUntilTarget(nextDateMillis: Long, targetDateMillis: Long): Int {
+        val next = Calendar.getInstance().apply {
+            timeInMillis = nextDateMillis
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        }
+
+        val target = Calendar.getInstance().apply {
+            timeInMillis = targetDateMillis
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        }
+
+        val diffMillis = next.timeInMillis - target.timeInMillis
+
+        return (diffMillis / AppConfig.MILLIS_IN_DAY).toInt()
+    }
+
+    fun getDayOfCycleForDate(records: List<PeriodRecord>, targetDateMillis: Long): Int? {
+        if (records.isEmpty()) return null
+
+        val lastStart = records
+            .filter { it.startDate <= targetDateMillis }
+            .maxByOrNull { it.startDate }?.startDate ?: return null
+
+        val diff = targetDateMillis - lastStart
+        val day = (diff / AppConfig.MILLIS_IN_DAY).toInt() + 1
+
+        return if (day in 1..45) day else null
     }
 }

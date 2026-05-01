@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -18,8 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.msch.entities.CalendarDay
-import com.example.msch.entities.DayStatus
+import com.example.msch.ui.models.CalendarDay
+import com.example.msch.ui.models.DayStatus
 import com.example.msch.entities.PeriodRecord
 import com.example.msch.logic.AppConfig
 import com.example.msch.services.SettingsManager
@@ -95,9 +94,9 @@ private fun calculateDayData(
         val actualEnd = record.endDate ?: defaultEnd
 
         if (record.endDate == null) {
-            time >= start && time <= now && time < actualEnd
+            time in start..<actualEnd
         } else {
-            time >= start && time <= actualEnd
+            time in start..actualEnd
         }
     }
 
@@ -155,7 +154,7 @@ fun DayItem(day: CalendarDay, isSelected: Boolean, onDateClick: () -> Unit) {
             .clickable { onDateClick() }
             .then(
                 if (isSelected)
-                    Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                    Modifier.border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
                 else
                     Modifier
             )

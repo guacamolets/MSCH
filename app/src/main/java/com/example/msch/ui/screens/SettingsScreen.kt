@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.room3.vo.Warning
 import com.example.msch.R
 import com.example.msch.notifications.NotificationScheduler
 import com.example.msch.services.SettingsManager
@@ -170,6 +169,7 @@ fun SettingsScreen(
                 Button(
                     onClick = {
                         onDeleteAll()
+                        scheduler.cancelAll()
                         showDeleteDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(

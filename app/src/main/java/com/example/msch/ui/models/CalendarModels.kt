@@ -1,4 +1,4 @@
-package com.example.msch.entities
+package com.example.msch.ui.models
 
 import java.util.Date
 

@@ -2,7 +2,6 @@ package com.example.msch.main
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -129,12 +128,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "PERIOD_REMINDER_CH", "Period Reminders", NotificationManager.IMPORTANCE_DEFAULT
-            )
-            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            "PERIOD_REMINDER_CH", "Period Reminders", NotificationManager.IMPORTANCE_DEFAULT
+        )
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
     }
 }
 

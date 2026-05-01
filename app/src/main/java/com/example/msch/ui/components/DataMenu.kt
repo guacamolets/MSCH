@@ -62,7 +62,7 @@ fun DataMenu(
                 }
             )
             DropdownMenuItem(
-                text = { Text("Вставить текст") },
+                text = { Text(stringResource(R.string.import_from_text)) },
                 leadingIcon = { Icon(Icons.Default.ContentPaste, null) },
                 onClick = {
                     showTextDialog = true
@@ -95,15 +95,16 @@ fun ImportTextDialog(
         title = { Text(stringResource(R.string.import_dialog_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(R.string.import_dialog_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
-                    placeholder = { Text(stringResource(R.string.import_dialog_placeholder)) },
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.import_dialog_placeholder),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth().height(180.dp),
                     textStyle = MaterialTheme.typography.bodyMedium
                 )

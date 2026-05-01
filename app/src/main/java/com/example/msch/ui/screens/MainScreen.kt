@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Opacity
-import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.msch.R
 import com.example.msch.entities.PeriodRecord
@@ -35,7 +33,17 @@ fun MainScreen(
     onEndPeriod: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedDate by remember { mutableStateOf(System.currentTimeMillis()) }
+    var selectedDate by remember {
+        mutableLongStateOf(
+            Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+        )
+    }
+
     val now = System.currentTimeMillis()
 
     val dateFormatter = remember { SimpleDateFormat("d MMM", Locale.getDefault()) }
@@ -44,14 +52,18 @@ fun MainScreen(
         CyclePredictor.predictNextCycle(records, settingsManager.defaultCycleLength)
     }
     val nextDateStr = remember(nextDateMillis) {
-        SimpleDateFormat("d MMMM", Locale.getDefault()).format(Date(nextDateMillis))
+        dateFormatter.format(Date(nextDateMillis))
     }
     val variations = remember(records, settingsManager.defaultCycleLength) {
         CyclePredictor.getVariations(records, settingsManager.defaultCycleLength)
     }
 
-    val currentDay = remember(records) { CyclePredictor.getCurrentDay(records) }
-    val daysUntil = remember(nextDateMillis) { CyclePredictor.getDaysUntilNext(nextDateMillis) }
+    val daysUntil = remember(nextDateMillis, selectedDate) {
+        CyclePredictor.getDaysUntilTarget(nextDateMillis, selectedDate)
+    }
+    val currentDaySelected = remember(records, selectedDate) {
+        CyclePredictor.getDayOfCycleForDate(records, selectedDate)
+    }
     val lastStats = remember(records) { CyclePredictor.getLastStats(records) }
 
     val activeRecord = remember(records) {
@@ -120,7 +132,11 @@ fun MainScreen(
                 containerColor = if (activeRecord == null)
                     MaterialTheme.colorScheme.primaryContainer
                 else
-                    MaterialTheme.colorScheme.tertiaryContainer
+                    MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = if (activeRecord == null)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onTertiaryContainer
             )
         ) {
             Icon(
@@ -132,8 +148,7 @@ fun MainScreen(
             Text(
                 text = when {
                     activeRecord != null -> stringResource(R.string.end_period_button)
-                    android.text.format.DateUtils.isToday(selectedDate) -> stringResource(R.string.log_period_button)
-                    else -> stringResource(R.string.log_period_on_date_format, dateFormatter.format(Date(selectedDate)))
+                    else -> stringResource(R.string.log_period_button)
                 }
             )
         }
@@ -145,8 +160,8 @@ fun MainScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             InfoBlock(
-                primaryLabel = SimpleDateFormat("d MMMM", Locale.getDefault()).format(Date()),
-                secondaryLabel = currentDay?.let {
+                primaryLabel = dateFormatter.format(Date()),
+                secondaryLabel = currentDaySelected?.let {
                     stringResource(R.string.status_subtitle_format, it, nextDateStr)
                 } ?: stringResource(R.string.no_data),
                 icon = Icons.Default.Event

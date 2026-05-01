@@ -16,7 +16,7 @@
     <string name="period_overdue">Late</string>
     <string name="no_data">No records yet. Tap + to add one</string>
 
-    <string name="log_period_button">Track today</string>
+    <string name="log_period_button">Start period</string>
     <string name="end_period_button">End period</string>
     <string name="log_period_on_date_format">Log for %1$s</string>
 
@@ -64,13 +64,12 @@
 
     <string name="data_management">Data Management</string>
     <string name="import_from_file">Import from file</string>
-    <string name="import_from_text">Paste text</string>
+    <string name="import_from_text">Import from text</string>
     <string name="file_import_title">Import from file</string>
     <string name="json_export_title">Export to JSON</string>
     <string name="csv_export_title">Export to CSV</string>
     <string name="import_dialog_title">Import from text</string>
-    <string name="import_dialog_hint">Paste date strings.\nEach record starts on a new line.\nEnd date (optional) separated by a comma.</string>
-    <string name="import_dialog_placeholder">2024-01-01,2024-01-05\n01.02.2024</string>
+    <string name="import_dialog_placeholder">2024–01–01,2024–01–05\n01.02.2024,05.02.2024\n01.03.2024\n2024–04–01</string>
     <string name="clear_history">Clear all history</string>
     <string name="delete_all_title">Delete all data?</string>
     <string name="delete_all_confirmation">All records will be permanently deleted. We recommend making an export first.</string>
