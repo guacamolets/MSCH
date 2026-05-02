@@ -25,9 +25,12 @@
     <string name="label_cycle">Last cycle</string>
     <string name="label_periods">Last period</string>
     <string name="label_variability">Cycle variability</string>
+
     <string name="status_subtitle_format">Day: %1$d&#160;&#160;•&#160;&#160;Next period: %2$s</string>
-    <string name="stats_status_normal">Length: %1$s days&#160;&#160;•&#160;&#160;Normal</string>
-    <string name="stats_status_abnormal">Length: %1$s days&#160;&#160;•&#160;&#160;Out of range</string>
+    <string name="stats_status_normal">Length: %1$d days&#160;&#160;•&#160;&#160;Normal</string>
+    <string name="stats_status_abnormal">Length: %1$d days&#160;&#160;•&#160;&#160;Out of range</string>
+    <string name="variability_status_regular">Length: %1$s days&#160;&#160;•&#160;&#160;Regular</string>
+    <string name="variability_status_irregular">Length: %1$s days&#160;&#160;•&#160;&#160;Irregular</string>
 
     <string name="manage_record_title">Manage record</string>
     <string name="selected_date">Date: %1$s</string>

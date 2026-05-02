@@ -25,9 +25,12 @@
     <string name="label_cycle">Предыдущий цикл</string>
     <string name="label_periods">Предыдущие месячные</string>
     <string name="label_variability">Колебания цикла</string>
+
     <string name="status_subtitle_format">День: %1$d&#160;&#160;•&#160;&#160;Месячные: %2$s</string>
-    <string name="stats_status_normal">Длина: %1$s дн.&#160;&#160;•&#160;&#160;Норма</string>
-    <string name="stats_status_abnormal">Длина: %1$s дн.&#160;&#160;•&#160;&#160;Не норма</string>
+    <string name="stats_status_normal">Длина: %1$d дн.&#160;&#160;•&#160;&#160;Норма</string>
+    <string name="stats_status_abnormal">Длина: %1$d дн.&#160;&#160;•&#160;&#160;Не норма</string>
+    <string name="variability_status_regular">Длина: %1$s дн.&#160;&#160;•&#160;&#160;Регулярный</string>
+    <string name="variability_status_irregular">Длина: %1$s дн.&#160;&#160;•&#160;&#160;Не регулярный</string>
 
     <string name="manage_record_title">Управление записью</string>
     <string name="selected_date">Дата: %1$s</string>

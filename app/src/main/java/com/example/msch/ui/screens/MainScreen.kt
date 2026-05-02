@@ -241,7 +241,7 @@ fun MainScreen(
                         val isNormal = CyclePredictor.isVariabilityNormal(max - min)
                         val rangeStr = if (min == max) "$min" else "$min–$max"
                         stringResource(
-                            if (isNormal) R.string.stats_status_normal else R.string.stats_status_abnormal,
+                            if (isNormal) R.string.variability_status_regular else R.string.variability_status_irregular,
                             rangeStr
                         )
                     },
