@@ -1,6 +1,6 @@
 package com.example.msch.ui.screens
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -35,7 +35,7 @@ fun HistoryScreen(
     var selectedRecord by remember { mutableStateOf<PeriodRecord?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
     var isAddingNewRecord by remember { mutableStateOf(false) }
-
+    var itemToDeleteId by remember { mutableStateOf<Long?>(null) }
     val sortedRecords = remember(records) { records.sortedByDescending { it.startDate } }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -62,7 +62,7 @@ fun HistoryScreen(
                         }
                     }
 
-                    val periodDuration = remember(record) {
+                    val periodLength = remember(record) {
                         record.endDate?.let {
                             val diff = it - record.startDate
                             (diff / AppConfig.MILLIS_IN_DAY).toInt() + 1
@@ -82,49 +82,58 @@ fun HistoryScreen(
                         ((getOvulationDate(nextCycleStart) - record.startDate) / AppConfig.MILLIS_IN_DAY).toInt()
                     }
 
-                    val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = { value ->
-                            if (value == SwipeToDismissBoxValue.EndToStart) {
-                                onDelete(record)
-                                true
-                            } else false
-                        }
-                    )
-
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        enableDismissFromStartToEnd = false,
-                        backgroundContent = {
-                            val color = when (dismissState.targetValue) {
-                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
-                                else -> MaterialTheme.colorScheme.surface
-                            }
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(color, MaterialTheme.shapes.medium)
-                                    .padding(horizontal = 20.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        }
-                    ) {
+                    val currentRecordId = record.id.toLong()
+                    Box(modifier = Modifier.fillMaxWidth()) {
                         PeriodItem(
                             record = record,
                             cycleLength = cycleLength,
-                            periodDuration = periodDuration,
+                            periodLength = periodLength,
                             ovulationDay = ovulationDay,
                             onClick = {
-                                selectedRecord = record
-                                isAddingNewRecord = false
-                                showDatePicker = true
+                                if (itemToDeleteId != null) {
+                                    itemToDeleteId = null
+                                } else {
+                                    selectedRecord = record
+                                    isAddingNewRecord = false
+                                    showDatePicker = true
+                                }
+                            },
+                            onLongClick = {
+                                itemToDeleteId = currentRecordId
                             }
                         )
+
+                        if (itemToDeleteId == currentRecordId) {
+                            Surface(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .padding(vertical = 4.dp)
+                                    .clickable { itemToDeleteId = null },
+                                color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f),
+                                shape = MaterialTheme.shapes.medium
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Row {
+                                        IconButton(
+                                            onClick = {
+                                                onDelete(record)
+                                                itemToDeleteId = null
+                                            },
+                                            colors = IconButtonDefaults.iconButtonColors(
+                                                containerColor = MaterialTheme.colorScheme.error,
+                                                contentColor = MaterialTheme.colorScheme.onError
+                                            )
+                                        ) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

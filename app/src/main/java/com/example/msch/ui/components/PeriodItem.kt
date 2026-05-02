@@ -1,7 +1,7 @@
 package com.example.msch.ui.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,16 +37,20 @@ import java.util.Date
 fun PeriodItem(
     record: PeriodRecord,
     cycleLength: Int?,
-    periodDuration: Int?,
+    periodLength: Int?,
     ovulationDay: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val sdf = remember(locale) { SimpleDateFormat("d MMMM yyyy", locale) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable { onClick() },
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).combinedClickable(
+            onClick = onClick,
+            onLongClick = onLongClick
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -80,8 +84,8 @@ fun PeriodItem(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = if (periodDuration != null) {
-                        stringResource(R.string.period_duration_format, periodDuration)
+                    text = if (periodLength != null) {
+                        stringResource(R.string.period_duration_format, periodLength)
                     } else {
                         stringResource(R.string.period_active)
                     },
@@ -91,10 +95,10 @@ fun PeriodItem(
                 )
             }
 
-            if (cycleLength != null && periodDuration != null) {
+            if (cycleLength != null && periodLength != null) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     SegmentedCycleBar(
-                        periodDays = periodDuration,
+                        periodDays = periodLength,
                         totalDays = cycleLength,
                         ovulationDay = ovulationDay,
                         modifier = Modifier
