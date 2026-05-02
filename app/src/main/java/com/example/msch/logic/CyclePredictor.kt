@@ -21,7 +21,7 @@ object CyclePredictor {
         if (records.isEmpty()) return System.currentTimeMillis() + cycleMillis
         if (records.size < 2) return records.first().startDate + cycleMillis
 
-        val limitedRecords = records.take(AppConfig.MAX_RECORDS + 1)
+        val limitedRecords = records.take(AppConfig.STATS_PERIOD_MONTHS + 1)
         val intervals = mutableListOf<Long>()
 
         for (i in 0 until limitedRecords.size - 1) {
@@ -37,7 +37,7 @@ object CyclePredictor {
     fun calculateAverageCycle(records: List<PeriodRecord>, defaultCycleLength: Int): Int {
         if (records.size < 2) return defaultCycleLength
 
-        val limitedRecords = records.take(AppConfig.MAX_RECORDS + 1)
+        val limitedRecords = records.take(AppConfig.STATS_PERIOD_MONTHS + 1)
         val durations = mutableListOf<Long>()
 
         for (i in 0 until limitedRecords.size - 1) {
@@ -82,25 +82,22 @@ object CyclePredictor {
         return lastCycleLen to lastPeriodLen
     }
 
-    fun getVariations(records: List<PeriodRecord>, defaultCycle: Int): Pair<String, String> {
-        val completed = records.filter { it.endDate != null }.sortedBy { it.startDate }
-        if (completed.isEmpty()) return "--" to "--"
+    fun getCycleRange(records: List<PeriodRecord>, defaultCycle: Int): Pair<Int, Int> {
+        val sorted = records.sortedBy { it.startDate }
 
-        val periodLengths = completed.map {
-            ((it.endDate!! - it.startDate) / AppConfig.MILLIS_IN_DAY).toInt() + 1
-        }
+        if (sorted.size < 2) return defaultCycle to defaultCycle
 
         val cycleLengths = mutableListOf<Int>()
-        for (i in 0 until completed.size - 1) {
-            val len = ((completed[i+1].startDate - completed[i].startDate) / AppConfig.MILLIS_IN_DAY).toInt()
-            cycleLengths.add(len)
+        for (i in 0 until sorted.size - 1) {
+            val len = ((sorted[i + 1].startDate - sorted[i].startDate) / AppConfig.MILLIS_IN_DAY).toInt()
+            if (len in 15..60) {
+                cycleLengths.add(len)
+            }
         }
 
-        val periodVar = "${periodLengths.minOrNull() ?: 0}–${periodLengths.maxOrNull() ?: 0}"
-        val cycleVar = if (cycleLengths.isEmpty()) "$defaultCycle"
-        else "${cycleLengths.minOrNull()}–${cycleLengths.maxOrNull()}"
+        if (cycleLengths.isEmpty()) return defaultCycle to defaultCycle
 
-        return cycleVar to periodVar
+        return (cycleLengths.minOrNull() ?: defaultCycle) to (cycleLengths.maxOrNull() ?: defaultCycle)
     }
 
     fun getDaysUntilTarget(nextDateMillis: Long, targetDateMillis: Long): Int {
@@ -158,6 +155,10 @@ object CyclePredictor {
         } else {
             value in AppConfig.Thresholds.MIN_PERIOD_DAYS..AppConfig.Thresholds.MAX_PERIOD_DAYS
         }
+    }
+
+    fun isVariabilityNormal(days: Int): Boolean {
+        return days <= AppConfig.MAX_NORMAL_VARIABILITY_DAYS
     }
 
     fun toStartOfDay(millis: Long = System.currentTimeMillis()): Long {

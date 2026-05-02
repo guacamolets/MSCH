@@ -2,13 +2,16 @@ package com.example.msch.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Opacity
+import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -68,6 +71,13 @@ fun MainScreen(
             nextDateMillis,
             settingsManager.defaultCycleLength
         )
+    }
+
+    val cycleRange = remember(records, settingsManager.defaultCycleLength) {
+        val sixMonthsAgo = System.currentTimeMillis() - (AppConfig.STATS_LOOKBACK_DAYS * AppConfig.MILLIS_IN_DAY)
+        val recentRecords = records.filter { it.startDate >= sixMonthsAgo }
+
+        CyclePredictor.getCycleRange(recentRecords, settingsManager.defaultCycleLength)
     }
 
     val activeRecord = remember(records) {
@@ -187,8 +197,10 @@ fun MainScreen(
 
             Spacer(Modifier.height(48.dp))
 
+            val infoScrollState = rememberScrollState()
+
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(infoScrollState),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 InfoBlock(
@@ -221,6 +233,19 @@ fun MainScreen(
                         )
                     } ?: stringResource(R.string.no_data),
                     icon = Icons.Default.Opacity
+                )
+
+                InfoBlock(
+                    primaryLabel = stringResource(R.string.label_variability),
+                    secondaryLabel = cycleRange.let { (min, max) ->
+                        val isNormal = CyclePredictor.isVariabilityNormal(max - min)
+                        val rangeStr = if (min == max) "$min" else "$min–$max"
+                        stringResource(
+                            if (isNormal) R.string.stats_status_normal else R.string.stats_status_abnormal,
+                            rangeStr
+                        )
+                    },
+                    icon = Icons.Default.Timeline
                 )
             }
         }
